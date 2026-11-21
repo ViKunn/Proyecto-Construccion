@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso Administrativo — Cafetería Universitaria</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="login-page">
+  <!-- Tarjeta principal de inicio de sesión para Trabajador y Administrador -->
+  <main class="login-card">
+    <header class="login-header">
+      <h1>Cafetería Universitaria</h1>
+      <p>Portal Administrativo (Personal y Administrador)</p>
+    </header>
+
+    <!-- Contenedor dinámico para mostrar errores de autenticación -->
+    <div id="login-error" class="alert alert-error hidden" role="alert"></div>
+
+    <form id="form-login" novalidate>
+      <div class="form-group">
+        <label for="correo">Correo institucional</label>
+        <input
+          type="email"
+          id="correo"
+          name="correo"
+          placeholder="ejemplo@epn.edu.ec"
+          autocomplete="username"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="contrasena">Contraseña</label>
+        <input
+          type="password"
+          id="contrasena"
+          name="contrasena"
+          placeholder="Ingresa tu contraseña"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button type="submit" id="btn-ingresar" class="btn btn-primary btn-block">
+        Iniciar sesión
+      </button>
+    </form>
+
+    <!-- Ayuda visible únicamente cuando la aplicación está en modo simulado (USE_MOCK = true) -->
+    <aside id="mock-credentials" class="mock-help hidden">
+      <strong>Modo de prueba (datos simulados activos):</strong><br />
+      Trabajador: <code>trabajador@epn.edu.ec</code> / <code>trab123</code><br />
+      Administrador: <code>admin@epn.edu.ec</code> / <code>admin123</code>
+    </aside>
+  </main>
+
+  <script type="module" src="js/pages/login.js"></script>
+</body>
+</html>

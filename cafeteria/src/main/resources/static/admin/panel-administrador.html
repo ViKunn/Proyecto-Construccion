@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administrador — Cafetería Universitaria</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Barra superior fija con identificación de rol y botón de salida -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <h1>Panel del Administrador</h1>
+      <span>Gestión de cuentas de trabajadores y seguridad</span>
+    </div>
+    <div class="topbar-user">
+      <span id="admin-info">Administrador</span>
+      <button type="button" id="btn-cerrar-sesion" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Sección superior: dos tarjetas en paralelo (crear trabajador y actualizar contraseña) -->
+    <div class="grid-2">
+      <!-- Formulario para registrar una nueva cuenta de trabajador -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Crear cuenta de trabajador</h2>
+        </div>
+
+        <form id="form-crear-trabajador" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="trab-nombre">Nombre</label>
+              <input type="text" id="trab-nombre" placeholder="Ej. María" required />
+            </div>
+
+            <div class="form-group">
+              <label for="trab-apellido">Apellido</label>
+              <input type="text" id="trab-apellido" placeholder="Ej. Gómez" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="trab-cedula">Cédula (10 dígitos)</label>
+              <input type="text" id="trab-cedula" maxlength="10" placeholder="1712345678" required />
+            </div>
+
+            <div class="form-group">
+              <label for="trab-correo">Correo electrónico</label>
+              <input type="email" id="trab-correo" placeholder="maria.gomez@epn.edu.ec" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="trab-contrasena">Contraseña inicial</label>
+              <input type="password" id="trab-contrasena" placeholder="Mínimo 6 caracteres" required />
+            </div>
+
+            <div class="form-group">
+              <label for="trab-confirmar">Confirmar contraseña</label>
+              <input type="password" id="trab-confirmar" placeholder="Repite la contraseña" required />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Registrar trabajador
+          </button>
+        </form>
+      </section>
+
+      <!-- Formulario para actualizar la contraseña propia del administrador -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Actualizar mi contraseña</h2>
+        </div>
+
+        <form id="form-cambiar-clave" novalidate>
+          <div class="form-group">
+            <label for="clave-actual">Contraseña actual</label>
+            <input type="password" id="clave-actual" required />
+          </div>
+
+          <div class="form-group">
+            <label for="clave-nueva">Nueva contraseña</label>
+            <input type="password" id="clave-nueva" placeholder="Mínimo 6 caracteres" required />
+          </div>
+
+          <div class="form-group">
+            <label for="clave-confirmar">Confirmar nueva contraseña</label>
+            <input type="password" id="clave-confirmar" required />
+          </div>
+
+          <button type="submit" class="btn btn-warning">
+            Actualizar contraseña
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <!-- Sección inferior: listado consultable de todos los trabajadores registrados -->
+    <section class="card">
+      <div class="card-header">
+        <h2>Lista de trabajadores registrados</h2>
+        <div class="toolbar" style="margin-bottom: 0;">
+          <input
+            type="search"
+            id="buscar-trabajador"
+            placeholder="Buscar por nombre, apellido o cédula..."
+          />
+          <button type="button" id="btn-recargar-trabajadores" class="btn btn-secondary btn-sm">
+            Actualizar lista
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre completo</th>
+              <th>Cédula</th>
+              <th>Correo</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-trabajadores-body">
+            <tr>
+              <td colspan="4" class="empty-state">Cargando trabajadores...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/pages/administrador.js"></script>
+</body>
+</html>
