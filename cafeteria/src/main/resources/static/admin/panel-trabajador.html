@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Personal de Cafetería — Cafetería Universitaria</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Barra superior del trabajador autenticado -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <h1>Panel de Cafetería</h1>
+      <span>Gestión de pedidos, retiro por código y mantenimiento del menú</span>
+    </div>
+    <div class="topbar-user">
+      <span id="trabajador-info">Personal</span>
+      <button type="button" id="btn-cerrar-sesion" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Navegación principal por pestañas del panel operativo -->
+    <nav class="tabs" aria-label="Secciones del panel de cafetería">
+      <button type="button" class="tab-btn active" data-tab="tab-pedidos">
+        Panel de Pedidos
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-retiro">
+        Validar Código de Retiro
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-menu">
+        Gestión del Menú
+      </button>
+    </nav>
+
+    <!-- ==================== PESTAÑA 1: PANEL DE PEDIDOS (HU-PER-04, 05, 06) ==================== -->
+    <section id="tab-pedidos" class="tab-panel active">
+      <div class="card">
+        <div class="card-header">
+          <h2>Pedidos de la cafetería</h2>
+          <button type="button" id="btn-actualizar-pedidos" class="btn btn-secondary btn-sm">
+            Actualizar pedidos
+          </button>
+        </div>
+
+        <!-- Filtros por estado con contadores (inicia en 'pendiente' según HU-PER-04) -->
+        <div class="status-pills" id="filtros-estado-pedidos">
+          <button type="button" class="pill-btn active" data-estado="pendiente">
+            Pendientes (<span id="count-pendiente">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="en preparación">
+            En preparación (<span id="count-preparacion">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="listo">
+            Listos para retirar (<span id="count-listo">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="entregado">
+            Entregados (<span id="count-entregado">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="">
+            Todos (<span id="count-todos">0</span>)
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Código retiro</th>
+                <th>Cliente</th>
+                <th>Fecha registro</th>
+                <th>Importe total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-pedidos-body">
+              <tr>
+                <td colspan="7" class="empty-state">Cargando pedidos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA 2: VALIDAR CÓDIGO DE RETIRO (HU-PER-07) ==================== -->
+    <section id="tab-retiro" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <h2>Validación de código y entrega de pedido</h2>
+        </div>
+
+        <p class="text-muted">
+          Ingresa el código de retiro presentado por el cliente. Según la política de la cafetería
+          (RN-NEG-07), un pedido solo puede marcarse como <strong>Entregado</strong> si su estado actual
+          es <strong>Listo para retirar</strong>.
+        </p>
+
+        <form id="form-buscar-retiro" class="toolbar mt-1" novalidate>
+          <input
+            type="text"
+            id="input-codigo-retiro"
+            placeholder="Ej. CAF-103C"
+            style="min-width: 240px; text-transform: uppercase;"
+            required
+          />
+          <button type="submit" class="btn btn-primary">Verificar código</button>
+        </form>
+
+        <!-- Resultado dinámico de la verificación del código -->
+        <div id="resultado-retiro"></div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA 3: GESTIÓN DEL MENÚ (HU-PER-01, 02, 03) ==================== -->
+    <section id="tab-menu" class="tab-panel">
+      <!-- Formulario para registrar un nuevo producto (HU-PER-01) -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Registrar nuevo producto en el menú</h2>
+        </div>
+
+        <form id="form-nuevo-producto" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="prod-codigo">Código del producto</label>
+              <input type="text" id="prod-codigo" placeholder="Ej. PROD-005" required />
+            </div>
+
+            <div class="form-group">
+              <label for="prod-nombre">Nombre</label>
+              <input type="text" id="prod-nombre" placeholder="Ej. Capuchino" required />
+            </div>
+
+            <div class="form-group">
+              <label for="prod-precio">Precio (USD)</label>
+              <input type="number" id="prod-precio" step="0.01" min="0.01" placeholder="1.80" required />
+            </div>
+
+            <div class="form-group">
+              <label for="prod-tipo">Tipo de producto</label>
+              <select id="prod-tipo" required>
+                <option value="alimento">Alimento</option>
+                <option value="bebida">Bebida</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="prod-disponible">Disponibilidad inicial</label>
+              <select id="prod-disponible" required>
+                <option value="si">Disponible (si)</option>
+                <option value="no">No disponible (no)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Guardar producto</button>
+        </form>
+      </div>
+
+      <!-- Tabla de consulta, edición y cambio de disponibilidad del menú -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Catálogo actual del menú</h2>
+          <div class="toolbar" style="margin-bottom: 0;">
+            <input type="search" id="filtro-menu-texto" placeholder="Buscar por código o nombre..." />
+            <select id="filtro-menu-tipo">
+              <option value="">Todos los tipos</option>
+              <option value="alimento">Alimentos</option>
+              <option value="bebida">Bebidas</option>
+            </select>
+            <select id="filtro-menu-disp">
+              <option value="">Todas las disponibilidades</option>
+              <option value="si">Disponibles</option>
+              <option value="no">No disponibles</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Precio</th>
+                <th>Disponibilidad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-menu-body">
+              <tr>
+                <td colspan="6" class="empty-state">Cargando menú...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODAL: DETALLE E HISTORIAL DE PEDIDO ==================== -->
+  <div id="modal-detalle-pedido" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-pedido-titulo">Detalle del pedido</h3>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-detalle-pedido">
+          Cerrar
+        </button>
+      </div>
+      <div id="modal-pedido-contenido"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: EDITAR PRODUCTO (HU-PER-02) ==================== -->
+  <div id="modal-editar-producto" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Actualizar producto del menú</h3>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-editar-producto">
+          Cerrar
+        </button>
+      </div>
+
+      <p class="alert alert-info">
+        Nota (RN-NEG-04): actualizar el precio solo aplica a nuevos pedidos y no modifica el precio
+        registrado en pedidos anteriores.
+      </p>
+
+      <form id="form-editar-producto" novalidate>
+        <input type="hidden" id="edit-prod-codigo" />
+
+        <div class="form-group">
+          <label for="edit-prod-nombre">Nombre del producto</label>
+          <input type="text" id="edit-prod-nombre" required />
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="edit-prod-precio">Precio (USD)</label>
+            <input type="number" id="edit-prod-precio" step="0.01" min="0.01" required />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-prod-tipo">Tipo</label>
+            <select id="edit-prod-tipo" required>
+              <option value="alimento">Alimento</option>
+              <option value="bebida">Bebida</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-prod-disponible">Disponibilidad</label>
+            <select id="edit-prod-disponible" required>
+              <option value="si">Disponible (si)</option>
+              <option value="no">No disponible (no)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="modal-editar-producto">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/pages/trabajador.js"></script>
+</body>
+</html>
