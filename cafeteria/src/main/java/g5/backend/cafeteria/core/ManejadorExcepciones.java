@@ -34,7 +34,7 @@ public class ManejadorExcepciones {
 
    @ExceptionHandler(MaxUploadSizeExceededException.class)
    public ResponseEntity<Map<String, Object>> archivoGrande(MaxUploadSizeExceededException e) {
-      return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+      return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
             .body(Map.of("mensaje", "La imagen supera el tamaño máximo permitido",
                   "errores", Map.of("imagen", "La imagen supera el tamaño máximo permitido")));
    }
