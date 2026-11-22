@@ -3,7 +3,10 @@ package g5.backend.cafeteria.pedido;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.List;
 
-/** Coincide con estado_pedido_enum. El orden de declaración es el único flujo permitido (RN-NEG-06). */
+/**
+ * Coincide con estado_pedido_enum. El orden de declaración es el único flujo
+ * permitido (RN-NEG-06).
+ */
 public enum EstadoPedido {
    PENDIENTE("pendiente"),
    EN_PREPARACION("en_preparacion"),
