@@ -1,167 +1,113 @@
 /**
  * Archivo: pedidoService.js
- * Propósito: Gestionar las consultas de pedidos, transiciones de estado y
- * validación del código de retiro (HU-PER-04 a HU-PER-07).
- * Respeta RN-NEG-06 (flujo lineal), RN-NEG-07 (entrega solo si está 'listo'
- * con código válido) y el registro de id_trabajador en HistorialEstadoPedido.
+ * Propósito: Conectar el Panel de Pedidos y la Validación de Código de Retiro
+ * con los endpoints reales de PedidoControlador (Spring Boot):
+ * - GET  /api/pedidos (en curso o filtrado por ?estado=)
+ * - GET  /api/pedidos/{id}
+ * - POST /api/pedidos/{id}/iniciar-preparacion
+ * - POST /api/pedidos/{id}/marcar-listo
+ * - POST /api/pedidos/{id}/verificar-codigo
+ * - POST /api/pedidos/{id}/entregar
  */
 
-import { APP_CONFIG, ESTADOS_PEDIDO } from "../config.js";
+import { ESTADOS_PEDIDO } from "../config.js";
 import { request } from "../api/httpClient.js";
-import { cargarMockDB, guardarMockDB } from "../api/mockData.js";
-import { esTransicionEstadoValida } from "../utils/validators.js";
 
 /**
- * Lista todos los pedidos o los filtra por estado (HU-PER-04).
+ * Obtiene la cola de pedidos para el personal (HU-PER-04).
+ * - Sin estado: devuelve pedidos en curso (pendiente, en_preparacion, listo).
+ * - Con estado: filtra por pendiente, en_preparacion, listo o entregado.
  *
- * @param {string} [estado=""] - Estado opcional (pendiente, en preparación, listo, entregado).
- * @returns {Promise<Array<Object>>} Lista de pedidos ordenados del más reciente al más antiguo.
+ * @param {string} [estado=""] - Estado opcional.
+ * @param {number} [limite=100] - Límite máximo de resultados (hasta 500).
+ * @returns {Promise<Array<Object>>} Lista de PedidoDto (versión personal, sin codigoRetiro).
  */
-export async function listarPedidos(estado = "") {
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const filtrados = estado
-      ? db.pedidos.filter((p) => p.estado === estado)
-      : [...db.pedidos];
-    return filtrados.sort((a, b) => new Date(b.fechaRegistro) - new Date(a.fechaRegistro));
+export async function listarPedidos(estado = "", limite = 100) {
+  const params = new URLSearchParams();
+  if (estado) {
+    params.set("estado", estado);
   }
-
-  const query = estado ? `?estado=${encodeURIComponent(estado)}` : "";
+  if (limite) {
+    params.set("limite", String(limite));
+  }
+  const query = params.toString() ? `?${params.toString()}` : "";
   return request(`/pedidos${query}`);
 }
 
 /**
- * Obtiene un pedido completo junto con sus DetallePedido e HistorialEstadoPedido.
+ * Obtiene todos los pedidos relevantes para los contadores del panel:
+ * consulta pedidos en curso (pendiente, en_preparacion, listo) y entregados en paralelo.
  *
- * @param {number|string} idPedido - Identificador del pedido.
- * @returns {Promise<Object>} Pedido con sus detalles e historial.
+ * @returns {Promise<Array<Object>>} Lista combinada de pedidos.
+ */
+export async function listarTodosLosPedidos() {
+  const [enCurso, entregados] = await Promise.all([
+    listarPedidos("", 200),
+    listarPedidos(ESTADOS_PEDIDO.ENTREGADO, 100)
+  ]);
+  return [...enCurso, ...entregados];
+}
+
+/**
+ * Consulta el detalle de un pedido específico (cliente e items con subtotal).
+ *
+ * @param {number|string} idPedido - ID del pedido.
+ * @returns {Promise<Object>} PedidoDto.
  */
 export async function obtenerDetallePedido(idPedido) {
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const pedido = db.pedidos.find((p) => Number(p.idPedido) === Number(idPedido));
-    if (!pedido) {
-      throw new Error("No se encontró el pedido solicitado.");
-    }
-    return pedido;
-  }
-
   return request(`/pedidos/${encodeURIComponent(idPedido)}`);
 }
 
 /**
- * Busca un pedido a partir del código único de retiro presentado por el cliente (HU-PER-07).
- *
- * @param {string} codigoRetiro - Código de retiro (ej. "CAF-103C").
- * @returns {Promise<Object>} Pedido encontrado.
- */
-export async function buscarPedidoPorCodigo(codigoRetiro) {
-  const codigoLimpio = String(codigoRetiro || "").trim().toUpperCase();
-  if (!codigoLimpio) {
-    throw new Error("Debes ingresar un código de retiro.");
-  }
-
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const pedido = db.pedidos.find(
-      (p) => p.codigoRetiro.toUpperCase() === codigoLimpio
-    );
-    if (!pedido) {
-      throw new Error(`No existe ningún pedido con el código de retiro "${codigoLimpio}".`);
-    }
-    return pedido;
-  }
-
-  return request(`/pedidos/codigo/${encodeURIComponent(codigoLimpio)}`);
-}
-
-/**
- * Cambia el estado de un pedido validando el orden estricto de RN-NEG-06
- * (HU-PER-05: pendiente -> en preparación; HU-PER-06: en preparación -> listo).
- * Registra el evento en HistorialEstadoPedido con el idTrabajador responsable.
+ * Cambia un pedido de estado pendiente a en_preparacion (HU-PER-05).
+ * El servidor obtiene id_trabajador desde la sesión HttpOnly.
  *
  * @param {number|string} idPedido - ID del pedido.
- * @param {string} nuevoEstado - Estado destino.
- * @param {number} idTrabajador - ID del trabajador autenticado que ejecuta el cambio.
- * @param {string} [nombreTrabajador="Trabajador"] - Nombre visible (usado en modo mock).
- * @returns {Promise<Object>} Pedido actualizado.
+ * @returns {Promise<Object>} PedidoDto actualizado.
  */
-export async function cambiarEstadoPedido(idPedido, nuevoEstado, idTrabajador, nombreTrabajador = "Trabajador") {
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const pedido = db.pedidos.find((p) => Number(p.idPedido) === Number(idPedido));
-    if (!pedido) {
-      throw new Error("El pedido no existe.");
-    }
-
-    if (!esTransicionEstadoValida(pedido.estado, nuevoEstado)) {
-      throw new Error(
-        `Transición no permitida: no se puede pasar de "${pedido.estado}" a "${nuevoEstado}".`
-      );
-    }
-
-    pedido.estado = nuevoEstado;
-    const siguienteIdHistorial =
-      pedido.historial.reduce((max, item) => Math.max(max, item.idHistorial || 0), 0) + 1;
-
-    // Registro obligatorio en HistorialEstadoPedido con idTrabajador NOT NULL
-    pedido.historial.push({
-      idHistorial: siguienteIdHistorial,
-      idPedido: pedido.idPedido,
-      idTrabajador,
-      nombreTrabajador,
-      estado: nuevoEstado,
-      fechaCambio: new Date().toISOString()
-    });
-
-    guardarMockDB(db);
-    return pedido;
-  }
-
-  return request(`/pedidos/${encodeURIComponent(idPedido)}/estado`, {
-    method: "PATCH",
-    body: { estado: nuevoEstado, idTrabajador }
+export async function iniciarPreparacion(idPedido) {
+  return request(`/pedidos/${encodeURIComponent(idPedido)}/iniciar-preparacion`, {
+    method: "POST"
   });
 }
 
 /**
- * Valida el código de retiro y marca el pedido como Entregado (HU-PER-07, RN-NEG-07).
- * Solo procede si el pedido existe y su estado actual es "listo".
+ * Cambia un pedido de estado en_preparacion a listo (HU-PER-06).
  *
- * @param {string} codigoRetiro - Código presentado por el cliente.
- * @param {number} idTrabajador - ID del trabajador que realiza la entrega.
- * @param {string} [nombreTrabajador="Trabajador"] - Nombre visible (usado en modo mock).
- * @returns {Promise<Object>} Pedido marcado como entregado.
+ * @param {number|string} idPedido - ID del pedido.
+ * @returns {Promise<Object>} PedidoDto actualizado.
  */
-export async function confirmarEntregaPorCodigo(codigoRetiro, idTrabajador, nombreTrabajador = "Trabajador") {
-  const codigoLimpio = String(codigoRetiro || "").trim().toUpperCase();
+export async function marcarPedidoListo(idPedido) {
+  return request(`/pedidos/${encodeURIComponent(idPedido)}/marcar-listo`, {
+    method: "POST"
+  });
+}
 
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const pedido = db.pedidos.find(
-      (p) => p.codigoRetiro.toUpperCase() === codigoLimpio
-    );
-
-    if (!pedido) {
-      throw new Error("El código de retiro ingresado no corresponde a ningún pedido.");
-    }
-
-    if (pedido.estado !== ESTADOS_PEDIDO.LISTO) {
-      throw new Error(
-        `No se puede entregar el pedido: su estado actual es "${pedido.estado}" y debe estar en "listo".`
-      );
-    }
-
-    return cambiarEstadoPedido(
-      pedido.idPedido,
-      ESTADOS_PEDIDO.ENTREGADO,
-      idTrabajador,
-      nombreTrabajador
-    );
-  }
-
-  return request("/pedidos/entregar", {
+/**
+ * Comprueba si el código presentado por el cliente coincide con el del pedido (sin entregarlo aún).
+ *
+ * @param {number|string} idPedido - ID del pedido listo.
+ * @param {string} codigoRetiro - Código de 6 caracteres presentado por el cliente.
+ * @returns {Promise<{ valido: boolean }>} Resultado de la verificación.
+ */
+export async function verificarCodigoRetiro(idPedido, codigoRetiro) {
+  return request(`/pedidos/${encodeURIComponent(idPedido)}/verificar-codigo`, {
     method: "POST",
-    body: { codigoRetiro: codigoLimpio, idTrabajador }
+    body: { codigoRetiro: String(codigoRetiro || "").trim().toUpperCase() }
+  });
+}
+
+/**
+ * Entrega un pedido (HU-PER-07, RN-NEG-07): el servidor exige estado "listo"
+ * y vuelve a comprobar que el código de retiro coincida antes de cambiarlo a "entregado".
+ *
+ * @param {number|string} idPedido - ID del pedido.
+ * @param {string} codigoRetiro - Código de retiro presentado por el cliente.
+ * @returns {Promise<Object>} PedidoDto en estado entregado.
+ */
+export async function entregarPedido(idPedido, codigoRetiro) {
+  return request(`/pedidos/${encodeURIComponent(idPedido)}/entregar`, {
+    method: "POST",
+    body: { codigoRetiro: String(codigoRetiro || "").trim().toUpperCase() }
   });
 }

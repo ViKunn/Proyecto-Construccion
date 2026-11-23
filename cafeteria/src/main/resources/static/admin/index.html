@@ -14,7 +14,7 @@
       <p>Portal Administrativo (Personal y Administrador)</p>
     </header>
 
-    <!-- Contenedor dinámico para mostrar errores de autenticación -->
+    <!-- Contenedor dinámico para mostrar errores devueltos por el servidor -->
     <div id="login-error" class="alert alert-error hidden" role="alert"></div>
 
     <form id="form-login" novalidate>
@@ -24,7 +24,7 @@
           type="email"
           id="correo"
           name="correo"
-          placeholder="ejemplo@epn.edu.ec"
+          placeholder="usuario@institucion.edu.ec"
           autocomplete="username"
           required
         />
@@ -46,13 +46,6 @@
         Iniciar sesión
       </button>
     </form>
-
-    <!-- Ayuda visible únicamente cuando la aplicación está en modo simulado (USE_MOCK = true) -->
-    <aside id="mock-credentials" class="mock-help hidden">
-      <strong>Modo de prueba (datos simulados activos):</strong><br />
-      Trabajador: <code>trabajador@epn.edu.ec</code> / <code>trab123</code><br />
-      Administrador: <code>admin@epn.edu.ec</code> / <code>admin123</code>
-    </aside>
   </main>
 
   <script type="module" src="js/pages/login.js"></script>

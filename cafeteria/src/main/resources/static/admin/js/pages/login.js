@@ -1,42 +1,39 @@
 /**
  * Archivo: login.js
- * Propósito: Controlar la pantalla de inicio de sesión (index.html).
- * Valida las credenciales ingresadas, llama a authService.iniciarSesion()
- * y redirige al panel correspondiente según el rol (trabajador o administrador).
+ * Propósito: Controlar la pantalla de inicio de sesión (index.html) contra
+ * POST /api/auth/login y restaurar sesión existente con GET /api/auth/me.
  */
 
-import { APP_CONFIG, ROLES } from "../config.js";
-import { iniciarSesion, obtenerSesion } from "../services/authService.js";
+import { ROLES } from "../config.js";
+import { iniciarSesion, obtenerSesionActual } from "../services/authService.js";
 import { esCorreoValido } from "../utils/validators.js";
 
 /**
- * Redirige automáticamente si ya existe una sesión activa válida.
+ * Redirige automáticamente según el tipo de usuario autenticado en el servidor.
  *
- * @param {Object} sesion - Sesión almacenada en sessionStorage.
+ * @param {Object} sesion - Objeto de sesión normalizado.
  */
 function redirigirPorRol(sesion) {
-  if (sesion.tipoUsuario === ROLES.TRABAJADOR) {
+  if (sesion.tipo === ROLES.TRABAJADOR) {
     window.location.href = "panel-trabajador.html";
-  } else if (sesion.tipoUsuario === ROLES.ADMINISTRADOR) {
+  } else if (sesion.tipo === ROLES.ADMINISTRADOR) {
     window.location.href = "panel-administrador.html";
   }
 }
 
 /**
- * Inicializa eventos de la pantalla de login cuando el DOM está listo.
+ * Inicializa la verificación de sesión activa y los eventos del formulario de login.
  */
-function inicializarLogin() {
-  // Si el usuario ya inició sesión previamente, se le envía directo a su panel
-  const sesionActiva = obtenerSesion();
-  if (sesionActiva) {
-    redirigirPorRol(sesionActiva);
-    return;
-  }
-
-  // Muestra credenciales de prueba solo cuando USE_MOCK está activado en config.js
-  const cajaMock = document.getElementById("mock-credentials");
-  if (APP_CONFIG.USE_MOCK && cajaMock) {
-    cajaMock.classList.remove("hidden");
+async function inicializarLogin() {
+  // Si el navegador ya tiene una cookie CAFETERIA_SESION válida, se redirige directo
+  try {
+    const sesionActiva = await obtenerSesionActual();
+    if (sesionActiva && (sesionActiva.tipo === ROLES.TRABAJADOR || sesionActiva.tipo === ROLES.ADMINISTRADOR)) {
+      redirigirPorRol(sesionActiva);
+      return;
+    }
+  } catch {
+    // Si el servidor aún no responde o no hay sesión, se mantiene en el formulario
   }
 
   const formulario = document.getElementById("form-login");
@@ -51,7 +48,6 @@ function inicializarLogin() {
     const correo = document.getElementById("correo").value.trim();
     const contrasena = document.getElementById("contrasena").value;
 
-    // Validación básica en el navegador antes de enviar la solicitud
     if (!esCorreoValido(correo)) {
       cajaError.textContent = "Por favor, ingresa un correo electrónico válido.";
       cajaError.classList.remove("hidden");

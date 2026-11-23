@@ -1,102 +1,99 @@
 /**
  * Archivo: authService.js
- * Propósito: Gestionar el inicio y cierre de sesión para los roles
- * Trabajador y Administrador, así como el almacenamiento de la sesión
- * en sessionStorage y la protección de acceso a cada pantalla.
+ * Propósito: Gestionar la autenticación contra el backend Spring Boot
+ * usando la cookie de sesión HttpOnly CAFETERIA_SESION:
+ * - POST /api/auth/login
+ * - GET  /api/auth/me
+ * - POST /api/auth/logout
  */
 
-import { APP_CONFIG, ROLES } from "../config.js";
+import { ROLES } from "../config.js";
 import { request } from "../api/httpClient.js";
-import { cargarMockDB } from "../api/mockData.js";
 
 /**
- * Autentica un usuario administrativo (trabajador o administrador).
- * Rechaza cuentas con tipo_usuario = "cliente" porque tienen su propio portal.
+ * Normaliza el objeto de sesión devuelto por el servidor para manejar
+ * el tipo de usuario siempre en minúsculas (cliente, trabajador, administrador).
  *
- * @param {string} correo - Correo electrónico registrado en Usuario.
- * @param {string} contrasena - Contraseña de la cuenta.
+ * @param {Object} dto - { tipo, nombre, apellido, correo }.
+ * @returns {Object} Sesión normalizada.
+ */
+function normalizarSesion(dto) {
+  const tipo = String(dto?.tipo || "").toLowerCase();
+  const nombreCompleto = [dto?.nombre, dto?.apellido].filter(Boolean).join(" ").trim();
+  return {
+    tipo,
+    nombre: dto?.nombre || null,
+    apellido: dto?.apellido || null,
+    nombreCompleto: nombreCompleto || (tipo === ROLES.ADMINISTRADOR ? "Administrador" : dto?.correo || "Usuario"),
+    correo: dto?.correo || ""
+  };
+}
+
+/**
+ * Inicia sesión contra el backend Spring Boot.
+ * Si la cuenta pertenece a un cliente, cierra esa sesión y bloquea el acceso al portal admin.
+ *
+ * @param {string} correo - Correo registrado.
+ * @param {string} contrasena - Contraseña en texto plano (validada con BCrypt en el servidor).
  * @returns {Promise<Object>} Datos de la sesión autenticada.
  */
 export async function iniciarSesion(correo, contrasena) {
-  const correoLimpio = String(correo || "").trim().toLowerCase();
-
-  let sesion;
-  if (APP_CONFIG.USE_MOCK) {
-    // Modo simulado: consulta la lista de usuarios y trabajadores en localStorage
-    const db = cargarMockDB();
-    const usuario = db.usuarios.find(
-      (u) => u.correo.toLowerCase() === correoLimpio && u.contrasena === contrasena
-    );
-
-    if (!usuario) {
-      throw new Error("Correo o contraseña incorrectos.");
+  const respuesta = await request("/auth/login", {
+    method: "POST",
+    body: {
+      correo: String(correo || "").trim().toLowerCase(),
+      contrasena
     }
+  });
 
-    if (usuario.tipoUsuario === ROLES.CLIENTE) {
-      throw new Error("Esta cuenta corresponde a un cliente. Usa el portal de clientes.");
-    }
+  const sesion = normalizarSesion(respuesta);
 
-    // Si es trabajador, se recupera su idTrabajador para auditar cambios de estado
-    const trabajador = db.trabajadores.find((t) => t.idUsuario === usuario.idUsuario);
-
-    sesion = {
-      idUsuario: usuario.idUsuario,
-      correo: usuario.correo,
-      tipoUsuario: usuario.tipoUsuario,
-      idTrabajador: trabajador ? trabajador.idTrabajador : null,
-      nombre: trabajador ? `${trabajador.nombre} ${trabajador.apellido}` : "Administrador"
-    };
-  } else {
-    // Modo backend real: llama al controlador AuthControlador de Spring Boot
-    sesion = await request("/auth/login", {
-      method: "POST",
-      body: { correo: correoLimpio, contrasena }
-    });
-
-    if (sesion.tipoUsuario === ROLES.CLIENTE) {
-      throw new Error("Acceso denegado: esta sección es exclusiva para personal y administradores.");
-    }
+  if (sesion.tipo === ROLES.CLIENTE) {
+    await request("/auth/logout", { method: "POST" }).catch(() => { });
+    throw new Error("Esta cuenta corresponde a un cliente. Usa el portal de clientes.");
   }
 
-  sessionStorage.setItem(APP_CONFIG.SESSION_STORAGE_KEY, JSON.stringify(sesion));
   return sesion;
 }
 
 /**
- * Obtiene la sesión actualmente activa desde sessionStorage.
+ * Consulta GET /api/auth/me para restaurar la sesión activa en el servidor.
  *
- * @returns {Object|null} Objeto de sesión o null si no existe.
+ * @returns {Promise<Object|null>} Sesión actual o null si no hay sesión iniciada (401).
  */
-export function obtenerSesion() {
-  const raw = sessionStorage.getItem(APP_CONFIG.SESSION_STORAGE_KEY);
-  if (!raw) {
-    return null;
-  }
+export async function obtenerSesionActual() {
   try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
+    const dto = await request("/auth/me");
+    return normalizarSesion(dto);
+  } catch (error) {
+    if (error.status === 401) {
+      return null;
+    }
+    throw error;
   }
 }
 
 /**
- * Cierra la sesión actual y redirige a la pantalla de inicio de sesión.
+ * Cierra la sesión en el servidor (invalida la cookie CAFETERIA_SESION) y redirige al login.
  */
-export function cerrarSesion() {
-  sessionStorage.removeItem(APP_CONFIG.SESSION_STORAGE_KEY);
-  window.location.href = "index.html";
+export async function cerrarSesion() {
+  try {
+    await request("/auth/logout", { method: "POST" });
+  } finally {
+    window.location.href = "index.html";
+  }
 }
 
 /**
- * Verifica que el usuario autenticado tenga el rol requerido para ver la página actual.
- * Si no cumple, redirige automáticamente a index.html.
+ * Verifica contra el servidor que exista una sesión activa con el rol requerido.
+ * Si no hay sesión o el rol no coincide, redirige automáticamente a index.html.
  *
- * @param {string} rolRequerido - Rol esperado (ROLES.TRABAJADOR o ROLES.ADMINISTRADOR).
- * @returns {Object|null} Sesión válida o null si se redirigió.
+ * @param {string} rolRequerido - ROLES.TRABAJADOR o ROLES.ADMINISTRADOR.
+ * @returns {Promise<Object|null>} Sesión válida o null si redirigió.
  */
-export function requerirRol(rolRequerido) {
-  const sesion = obtenerSesion();
-  if (!sesion || sesion.tipoUsuario !== rolRequerido) {
+export async function requerirRol(rolRequerido) {
+  const sesion = await obtenerSesionActual();
+  if (!sesion || sesion.tipo !== rolRequerido) {
     window.location.href = "index.html";
     return null;
   }

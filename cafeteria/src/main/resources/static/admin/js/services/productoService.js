@@ -1,122 +1,109 @@
 /**
  * Archivo: productoService.js
- * Propósito: Gestionar las operaciones del menú de la cafetería
- * (HU-PER-01: registrar, HU-PER-02: actualizar, HU-PER-03: cambiar disponibilidad).
- * Respeta RN-NEG-02 y RN-NEG-04 (los cambios no alteran pedidos anteriores).
+ * Propósito: Conectar la Gestión del Menú del Frontend Administrativo con los
+ * endpoints reales de ProductoControlador (Spring Boot):
+ * - GET   /api/productos
+ * - POST  /api/productos (multipart/form-data con imagen opcional)
+ * - PATCH /api/productos/{codigo} (nombre, precio y/o disponible)
+ * - PUT   /api/productos/{codigo}/imagen (reemplazar imagen)
+ * - PUT   /api/productos/menu (armar el menú en lote)
  */
 
-import { APP_CONFIG } from "../config.js";
 import { request } from "../api/httpClient.js";
-import { cargarMockDB, guardarMockDB } from "../api/mockData.js";
 
 /**
- * Obtiene el catálogo completo de productos del menú (disponibles y no disponibles).
+ * Obtiene el catálogo completo de productos (disponibles y no disponibles).
  *
- * @returns {Promise<Array<Object>>} Lista de productos.
+ * @param {Object} [filtros={}] - Opcional: { tipo: "bebida"|"alimento", disponible: true|false }.
+ * @returns {Promise<Array<Object>>} Lista de ProductoDto.
  */
-export async function listarProductos() {
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    return [...db.productos];
+export async function listarProductos(filtros = {}) {
+  const params = new URLSearchParams();
+  if (filtros.tipo) {
+    params.set("tipo", filtros.tipo);
   }
-  return request("/productos");
+  if (filtros.disponible !== undefined && filtros.disponible !== "") {
+    params.set("disponible", String(filtros.disponible));
+  }
+  const query = params.toString() ? `?${params.toString()}` : "";
+  return request(`/productos${query}`);
 }
 
 /**
- * Registra un nuevo producto en el menú (HU-PER-01).
+ * Crea un nuevo producto en el menú (HU-PER-01).
+ * El servidor genera automáticamente codigoProducto y lo crea como disponible = true.
  *
- * @param {Object} nuevoProducto - { codigoProducto, nombre, precio, disponible, tipoProducto }.
- * @returns {Promise<Object>} Producto registrado.
+ * @param {Object} datos - { nombre, precio, tipoProducto, imagen (File opcional) }.
+ * @returns {Promise<Object>} ProductoDto creado.
  */
-export async function crearProducto(nuevoProducto) {
-  const payload = {
-    codigoProducto: String(nuevoProducto.codigoProducto).trim().toUpperCase(),
-    nombre: String(nuevoProducto.nombre).trim(),
-    precio: Number(nuevoProducto.precio),
-    disponible: nuevoProducto.disponible,
-    tipoProducto: nuevoProducto.tipoProducto
-  };
+export async function crearProducto(datos) {
+  const formData = new FormData();
+  formData.append("nombre", String(datos.nombre).trim());
+  formData.append("precio", String(datos.precio).trim().replace(",", "."));
+  formData.append("tipo", datos.tipoProducto);
 
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const existe = db.productos.some(
-      (p) => p.codigoProducto.toLowerCase() === payload.codigoProducto.toLowerCase()
-    );
-    if (existe) {
-      throw new Error(`Ya existe un producto con el código ${payload.codigoProducto}.`);
-    }
-
-    db.productos.push(payload);
-    guardarMockDB(db);
-    return payload;
+  if (datos.imagen instanceof File) {
+    formData.append("imagen", datos.imagen);
   }
 
   return request("/productos", {
     method: "POST",
-    body: payload
+    body: formData
   });
 }
 
 /**
- * Actualiza nombre, precio, tipo o disponibilidad de un producto existente (HU-PER-02).
- * Importante (RN-NEG-04): modificar el precio aquí no altera el precioUnitario
- * guardado en los detalles de pedidos ya confirmados.
+ * Modifica parcialmente nombre, precio y/o disponibilidad de un producto (HU-PER-02 / HU-PER-03).
  *
- * @param {string} codigoProducto - Clave primaria del producto a actualizar.
- * @param {Object} datosActualizados - { nombre, precio, tipoProducto, disponible }.
- * @returns {Promise<Object>} Producto actualizado.
+ * @param {number|string} codigoProducto - Código numérico del producto.
+ * @param {Object} cambios - Objeto parcial con al menos uno de: { nombre, precio, disponible }.
+ * @returns {Promise<Object>} ProductoDto actualizado.
  */
-export async function actualizarProducto(codigoProducto, datosActualizados) {
-  const payload = {
-    nombre: String(datosActualizados.nombre).trim(),
-    precio: Number(datosActualizados.precio),
-    tipoProducto: datosActualizados.tipoProducto,
-    disponible: datosActualizados.disponible
-  };
-
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const indice = db.productos.findIndex((p) => p.codigoProducto === codigoProducto);
-    if (indice === -1) {
-      throw new Error("El producto que intentas actualizar no existe.");
-    }
-
-    db.productos[indice] = {
-      ...db.productos[indice],
-      ...payload
-    };
-    guardarMockDB(db);
-    return db.productos[indice];
+export async function actualizarProducto(codigoProducto, cambios) {
+  const payload = {};
+  if (cambios.nombre !== undefined) {
+    payload.nombre = String(cambios.nombre).trim();
+  }
+  if (cambios.precio !== undefined) {
+    payload.precio = Number(String(cambios.precio).replace(",", "."));
+  }
+  if (cambios.disponible !== undefined) {
+    payload.disponible = Boolean(cambios.disponible);
   }
 
   return request(`/productos/${encodeURIComponent(codigoProducto)}`, {
-    method: "PUT",
+    method: "PATCH",
     body: payload
   });
 }
 
 /**
- * Cambia exclusivamente la disponibilidad de un producto ('si' o 'no') sin eliminarlo (HU-PER-03).
+ * Reemplaza la imagen de un producto existente mediante multipart/form-data.
  *
- * @param {string} codigoProducto - Código del producto.
- * @param {"si"|"no"} nuevaDisponibilidad - Nuevo estado de disponibilidad.
- * @returns {Promise<Object>} Producto actualizado.
+ * @param {number|string} codigoProducto - Código numérico del producto.
+ * @param {File} archivoImagen - Imagen JPG, PNG o WEBP de hasta 2 MB.
+ * @returns {Promise<Object>} ProductoDto con la nueva imagenUrl.
  */
-export async function cambiarDisponibilidadProducto(codigoProducto, nuevaDisponibilidad) {
-  if (APP_CONFIG.USE_MOCK) {
-    const db = cargarMockDB();
-    const producto = db.productos.find((p) => p.codigoProducto === codigoProducto);
-    if (!producto) {
-      throw new Error("No se encontró el producto seleccionado.");
-    }
+export async function reemplazarImagenProducto(codigoProducto, archivoImagen) {
+  const formData = new FormData();
+  formData.append("imagen", archivoImagen);
 
-    producto.disponible = nuevaDisponibilidad;
-    guardarMockDB(db);
-    return producto;
-  }
+  return request(`/productos/${encodeURIComponent(codigoProducto)}/imagen`, {
+    method: "PUT",
+    body: formData
+  });
+}
 
-  return request(`/productos/${encodeURIComponent(codigoProducto)}/disponibilidad`, {
-    method: "PATCH",
-    body: { disponible: nuevaDisponibilidad }
+/**
+ * Arma el menú en lote: deja disponibles únicamente los productos cuyos códigos
+ * se envían y marca como no disponibles a todos los demás.
+ *
+ * @param {Array<number>} codigos - Arreglo no vacío de códigos de producto.
+ * @returns {Promise<Array<Object>>} Menú resultante (productos disponibles).
+ */
+export async function armarMenu(codigos) {
+  return request("/productos/menu", {
+    method: "PUT",
+    body: { codigos }
   });
 }

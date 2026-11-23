@@ -39,18 +39,18 @@
     <section id="tab-pedidos" class="tab-panel active">
       <div class="card">
         <div class="card-header">
-          <h2>Pedidos de la cafetería</h2>
+          <h2>Cola de pedidos de la cafetería</h2>
           <button type="button" id="btn-actualizar-pedidos" class="btn btn-secondary btn-sm">
             Actualizar pedidos
           </button>
         </div>
 
-        <!-- Filtros por estado con contadores (inicia en 'pendiente' según HU-PER-04) -->
+        <!-- Filtros por estado exactos del backend (estado_pedido_enum) -->
         <div class="status-pills" id="filtros-estado-pedidos">
           <button type="button" class="pill-btn active" data-estado="pendiente">
             Pendientes (<span id="count-pendiente">0</span>)
           </button>
-          <button type="button" class="pill-btn" data-estado="en preparación">
+          <button type="button" class="pill-btn" data-estado="en_preparacion">
             En preparación (<span id="count-preparacion">0</span>)
           </button>
           <button type="button" class="pill-btn" data-estado="listo">
@@ -68,8 +68,7 @@
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Código retiro</th>
+                <th>ID Pedido</th>
                 <th>Cliente</th>
                 <th>Fecha registro</th>
                 <th>Importe total</th>
@@ -79,7 +78,7 @@
             </thead>
             <tbody id="tabla-pedidos-body">
               <tr>
-                <td colspan="7" class="empty-state">Cargando pedidos...</td>
+                <td colspan="6" class="empty-state">Cargando pedidos...</td>
               </tr>
             </tbody>
           </table>
@@ -95,30 +94,49 @@
         </div>
 
         <p class="text-muted">
-          Ingresa el código de retiro presentado por el cliente. Según la política de la cafetería
-          (RN-NEG-07), un pedido solo puede marcarse como <strong>Entregado</strong> si su estado actual
-          es <strong>Listo para retirar</strong>.
+          Selecciona un pedido en estado <strong>Listo para retirar</strong> e ingresa el código de
+          6 caracteres que presenta el cliente. Por seguridad, el código no se muestra al personal
+          y es verificado directamente en el servidor (RN-NEG-07).
         </p>
 
-        <form id="form-buscar-retiro" class="toolbar mt-1" novalidate>
-          <input
-            type="text"
-            id="input-codigo-retiro"
-            placeholder="Ej. CAF-103C"
-            style="min-width: 240px; text-transform: uppercase;"
-            required
-          />
-          <button type="submit" class="btn btn-primary">Verificar código</button>
+        <form id="form-retiro-pedido" class="form-grid mt-1" novalidate>
+          <div class="form-group">
+            <label for="select-pedido-listo">Pedido listo para retirar</label>
+            <select id="select-pedido-listo" required>
+              <option value="">Selecciona un pedido...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-codigo-retiro">Código de retiro (6 caracteres)</label>
+            <input
+              type="text"
+              id="input-codigo-retiro"
+              maxlength="6"
+              placeholder="Ej. K7M3QX"
+              style="text-transform: uppercase;"
+              required
+            />
+          </div>
         </form>
 
-        <!-- Resultado dinámico de la verificación del código -->
-        <div id="resultado-retiro"></div>
+        <div class="actions-cell">
+          <button type="button" id="btn-comprobar-codigo" class="btn btn-secondary">
+            Comprobar código
+          </button>
+          <button type="button" id="btn-confirmar-entrega" class="btn btn-success">
+            Confirmar entrega
+          </button>
+        </div>
+
+        <!-- Resultado dinámico de verificación / resumen del pedido seleccionado -->
+        <div id="resultado-retiro" class="mt-1"></div>
       </div>
     </section>
 
     <!-- ==================== PESTAÑA 3: GESTIÓN DEL MENÚ (HU-PER-01, 02, 03) ==================== -->
     <section id="tab-menu" class="tab-panel">
-      <!-- Formulario para registrar un nuevo producto (HU-PER-01) -->
+      <!-- Formulario para registrar un nuevo producto con imagen opcional (HU-PER-01) -->
       <div class="card">
         <div class="card-header">
           <h2>Registrar nuevo producto en el menú</h2>
@@ -127,18 +145,13 @@
         <form id="form-nuevo-producto" novalidate>
           <div class="form-grid">
             <div class="form-group">
-              <label for="prod-codigo">Código del producto</label>
-              <input type="text" id="prod-codigo" placeholder="Ej. PROD-005" required />
-            </div>
-
-            <div class="form-group">
-              <label for="prod-nombre">Nombre</label>
-              <input type="text" id="prod-nombre" placeholder="Ej. Capuchino" required />
+              <label for="prod-nombre">Nombre del producto</label>
+              <input type="text" id="prod-nombre" placeholder="Ej. Té frío" required />
             </div>
 
             <div class="form-group">
               <label for="prod-precio">Precio (USD)</label>
-              <input type="number" id="prod-precio" step="0.01" min="0.01" placeholder="1.80" required />
+              <input type="number" id="prod-precio" step="0.01" min="0.01" max="999.99" placeholder="1.25" required />
             </div>
 
             <div class="form-group">
@@ -150,19 +163,18 @@
             </div>
 
             <div class="form-group">
-              <label for="prod-disponible">Disponibilidad inicial</label>
-              <select id="prod-disponible" required>
-                <option value="si">Disponible (si)</option>
-                <option value="no">No disponible (no)</option>
-              </select>
+              <label for="prod-imagen">Imagen (opcional, JPG/PNG/WEBP máx. 2 MB)</label>
+              <input type="file" id="prod-imagen" accept="image/jpeg,image/png,image/webp" />
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary">Guardar producto</button>
+          <button type="submit" id="btn-guardar-producto" class="btn btn-primary">
+            Guardar producto
+          </button>
         </form>
       </div>
 
-      <!-- Tabla de consulta, edición y cambio de disponibilidad del menú -->
+      <!-- Tabla de catálogo completo, edición, imagen y armado de menú en lote -->
       <div class="card">
         <div class="card-header">
           <h2>Catálogo actual del menú</h2>
@@ -175,16 +187,26 @@
             </select>
             <select id="filtro-menu-disp">
               <option value="">Todas las disponibilidades</option>
-              <option value="si">Disponibles</option>
-              <option value="no">No disponibles</option>
+              <option value="true">Disponibles</option>
+              <option value="false">No disponibles</option>
             </select>
+            <button type="button" id="btn-armar-menu" class="btn btn-warning btn-sm">
+              Guardar menú seleccionado
+            </button>
           </div>
         </div>
+
+        <p class="text-muted" style="margin-bottom: 0.75rem;">
+          Marca los productos que estarán disponibles hoy y pulsa <strong>Guardar menú seleccionado</strong>
+          para aplicar el cambio en lote, o usa los botones individuales de cada fila.
+        </p>
 
         <div class="table-responsive">
           <table>
             <thead>
               <tr>
+                <th class="checkbox-cell" title="Incluir en el menú del día">Menú</th>
+                <th>Imagen</th>
                 <th>Código</th>
                 <th>Nombre</th>
                 <th>Tipo</th>
@@ -195,7 +217,7 @@
             </thead>
             <tbody id="tabla-menu-body">
               <tr>
-                <td colspan="6" class="empty-state">Cargando menú...</td>
+                <td colspan="8" class="empty-state">Cargando menú...</td>
               </tr>
             </tbody>
           </table>
@@ -204,7 +226,7 @@
     </section>
   </main>
 
-  <!-- ==================== MODAL: DETALLE E HISTORIAL DE PEDIDO ==================== -->
+  <!-- ==================== MODAL: DETALLE DE PEDIDO ==================== -->
   <div id="modal-detalle-pedido" class="modal-backdrop" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
@@ -217,7 +239,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: EDITAR PRODUCTO (HU-PER-02) ==================== -->
+  <!-- ==================== MODAL: EDITAR PRODUCTO E IMAGEN (HU-PER-02) ==================== -->
   <div id="modal-editar-producto" class="modal-backdrop" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
@@ -229,7 +251,7 @@
 
       <p class="alert alert-info">
         Nota (RN-NEG-04): actualizar el precio solo aplica a nuevos pedidos y no modifica el precio
-        registrado en pedidos anteriores.
+        registrado en pedidos anteriores. El tipo de producto no se puede modificar.
       </p>
 
       <form id="form-editar-producto" novalidate>
@@ -243,31 +265,30 @@
         <div class="form-grid">
           <div class="form-group">
             <label for="edit-prod-precio">Precio (USD)</label>
-            <input type="number" id="edit-prod-precio" step="0.01" min="0.01" required />
-          </div>
-
-          <div class="form-group">
-            <label for="edit-prod-tipo">Tipo</label>
-            <select id="edit-prod-tipo" required>
-              <option value="alimento">Alimento</option>
-              <option value="bebida">Bebida</option>
-            </select>
+            <input type="number" id="edit-prod-precio" step="0.01" min="0.01" max="999.99" required />
           </div>
 
           <div class="form-group">
             <label for="edit-prod-disponible">Disponibilidad</label>
             <select id="edit-prod-disponible" required>
-              <option value="si">Disponible (si)</option>
-              <option value="no">No disponible (no)</option>
+              <option value="true">Disponible</option>
+              <option value="false">No disponible</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-prod-imagen">Reemplazar imagen (opcional, JPG/PNG/WEBP máx. 2 MB)</label>
+          <input type="file" id="edit-prod-imagen" accept="image/jpeg,image/png,image/webp" />
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-close-modal="modal-editar-producto">
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+          <button type="submit" id="btn-actualizar-producto" class="btn btn-primary">
+            Guardar cambios
+          </button>
         </div>
       </form>
     </div>
