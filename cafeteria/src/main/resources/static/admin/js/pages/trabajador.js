@@ -437,8 +437,12 @@ async function manejarConfirmarEntrega() {
    SECCIÓN 4: GESTIÓN DEL MENÚ (HU-PER-01, HU-PER-02, HU-PER-03)
    ============================================================================ */
 
+/**
+ * Renderiza el catálogo del menú como una carta visual profesional de tarjetas
+ * (foto destacada, categoría Bebida/Alimento, precio, interruptor de disponibilidad y edición).
+ */
 function renderizarTablaMenu() {
-  const tbody = document.getElementById("tabla-menu-body");
+  const contenedor = document.getElementById("catalogo-menu-grid");
   const texto = document.getElementById("filtro-menu-texto").value.trim().toLowerCase();
   const tipo = document.getElementById("filtro-menu-tipo").value;
   const disp = document.getElementById("filtro-menu-disp").value;
@@ -453,43 +457,64 @@ function renderizarTablaMenu() {
   });
 
   if (filtrados.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8" class="empty-state">No hay productos que coincidan con el filtro.</td>
-      </tr>
-    `;
+    contenedor.innerHTML =
+      '<div class="empty-state menu-grid-empty">No hay productos que coincidan con el filtro.</div>';
     return;
   }
 
-  tbody.innerHTML = filtrados
+  contenedor.innerHTML = filtrados
     .map((p) => {
       const esDisponible = Boolean(p.disponible);
-      const badgeDisp = esDisponible
-        ? '<span class="badge badge-disponible">Disponible</span>'
-        : '<span class="badge badge-no-disponible">No disponible</span>';
+      const esBebida = p.tipoProducto === "bebida";
+      const claseTipo = esBebida ? "menu-tipo-bebida" : "menu-tipo-alimento";
+      const etiquetaTipo = esBebida ? "Bebida" : "Alimento";
 
-      const miniatura = p.imagenUrl
-        ? `<img src="${escaparHtml(p.imagenUrl)}" alt="${escaparHtml(p.nombre)}" class="producto-thumb" />`
-        : '<div class="producto-thumb-placeholder">Sin foto</div>';
+      const imagenFallback = esBebida
+        ? "img/placeholder-bebida.svg"
+        : "img/placeholder-alimento.svg";
+      const srcImagen = p.imagenUrl || imagenFallback;
+      const mediaHtml = `<img src="${escaparHtml(srcImagen)}" alt="${escaparHtml(p.nombre)}" />`;
 
       return `
-        <tr>
-          <td class="checkbox-cell">
-            <input
-              type="checkbox"
-              class="chk-menu-item"
-              value="${escaparHtml(p.codigoProducto)}"
-              ${esDisponible ? "checked" : ""}
-              aria-label="Incluir ${escaparHtml(p.nombre)} en el menú"
-            />
-          </td>
-          <td>${miniatura}</td>
-          <td><strong>#${escaparHtml(p.codigoProducto)}</strong></td>
-          <td>${escaparHtml(p.nombre)}</td>
-          <td>${escaparHtml(p.tipoProducto)}</td>
-          <td>${formatearMoneda(p.precio)}</td>
-          <td>${badgeDisp}</td>
-          <td class="actions-cell">
+        <article class="menu-card ${esDisponible ? "" : "menu-card--inactivo"}">
+          <div class="menu-card-media">
+            ${mediaHtml}
+            <div class="menu-card-top-badges">
+              <span class="menu-tipo-pill ${claseTipo}">${etiquetaTipo}</span>
+              <label class="menu-select-pill" title="Seleccionar para armar el menú en lote">
+                <input
+                  type="checkbox"
+                  class="chk-menu-item"
+                  value="${escaparHtml(p.codigoProducto)}"
+                  ${esDisponible ? "checked" : ""}
+                />
+                <span>En menú</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="menu-card-body">
+            <div class="menu-card-header-row">
+              <h3 class="menu-card-title">${escaparHtml(p.nombre)}</h3>
+              <span class="menu-card-price">${formatearMoneda(p.precio)}</span>
+            </div>
+            <span class="menu-card-code">Código #${escaparHtml(p.codigoProducto)}</span>
+          </div>
+
+          <div class="menu-card-footer">
+            <label class="switch-control">
+              <span class="switch">
+                <input
+                  type="checkbox"
+                  data-accion-menu="disponibilidad"
+                  data-codigo="${escaparHtml(p.codigoProducto)}"
+                  ${esDisponible ? "checked" : ""}
+                />
+                <span class="switch-slider"></span>
+              </span>
+              <span>${esDisponible ? "Disponible" : "No disponible"}</span>
+            </label>
+
             <button
               type="button"
               class="btn btn-secondary btn-sm"
@@ -498,17 +523,8 @@ function renderizarTablaMenu() {
             >
               Editar
             </button>
-            <button
-              type="button"
-              class="btn ${esDisponible ? "btn-danger" : "btn-success"} btn-sm"
-              data-accion-menu="disponibilidad"
-              data-codigo="${escaparHtml(p.codigoProducto)}"
-              data-actual="${esDisponible}"
-            >
-              ${esDisponible ? "Desactivar" : "Activar"}
-            </button>
-          </td>
-        </tr>
+          </div>
+        </article>
       `;
     })
     .join("");
@@ -563,44 +579,53 @@ async function manejarCrearProducto(evento) {
   }
 }
 
-async function manejarAccionesTablaMenu(evento) {
-  const boton = evento.target.closest("[data-accion-menu]");
+/**
+ * Maneja el clic en "Editar" sobre una tarjeta del catálogo (HU-PER-02).
+ */
+function manejarClickCatalogoMenu(evento) {
+  const boton = evento.target.closest('button[data-accion-menu="editar"]');
   if (!boton) {
     return;
   }
 
-  const accion = boton.dataset.accionMenu;
   const codigo = Number(boton.dataset.codigo);
-
-  if (accion === "editar") {
-    const producto = productosCache.find((p) => Number(p.codigoProducto) === codigo);
-    if (!producto) {
-      return;
-    }
-
-    document.getElementById("edit-prod-codigo").value = producto.codigoProducto;
-    document.getElementById("edit-prod-nombre").value = producto.nombre;
-    document.getElementById("edit-prod-precio").value = producto.precio;
-    document.getElementById("edit-prod-disponible").value = String(Boolean(producto.disponible));
-    document.getElementById("edit-prod-imagen").value = "";
-    abrirModal("modal-editar-producto");
+  const producto = productosCache.find((p) => Number(p.codigoProducto) === codigo);
+  if (!producto) {
     return;
   }
 
-  if (accion === "disponibilidad") {
-    const nuevoValor = boton.dataset.actual !== "true";
-    boton.disabled = true;
-    try {
-      await actualizarProducto(codigo, { disponible: nuevoValor });
-      mostrarToast(
-        `Producto #${codigo} marcado como ${nuevoValor ? "disponible" : "no disponible"}.`,
-        "exito"
-      );
-      await cargarProductos();
-    } catch (error) {
-      mostrarToast(error.message || "No se pudo cambiar la disponibilidad.", "error");
-      boton.disabled = false;
-    }
+  document.getElementById("edit-prod-codigo").value = producto.codigoProducto;
+  document.getElementById("edit-prod-nombre").value = producto.nombre;
+  document.getElementById("edit-prod-precio").value = producto.precio;
+  document.getElementById("edit-prod-disponible").value = String(Boolean(producto.disponible));
+  document.getElementById("edit-prod-imagen").value = "";
+  abrirModal("modal-editar-producto");
+}
+
+/**
+ * Maneja el cambio del interruptor deslizante de disponibilidad (HU-PER-03).
+ */
+async function manejarCambioDisponibilidadMenu(evento) {
+  const interruptor = evento.target.closest('input[data-accion-menu="disponibilidad"]');
+  if (!interruptor) {
+    return;
+  }
+
+  const codigo = Number(interruptor.dataset.codigo);
+  const nuevoValor = Boolean(interruptor.checked);
+  interruptor.disabled = true;
+
+  try {
+    await actualizarProducto(codigo, { disponible: nuevoValor });
+    mostrarToast(
+      `Producto #${codigo} marcado como ${nuevoValor ? "disponible" : "no disponible"}.`,
+      "exito"
+    );
+    await cargarProductos();
+  } catch (error) {
+    interruptor.checked = !nuevoValor;
+    interruptor.disabled = false;
+    mostrarToast(error.message || "No se pudo cambiar la disponibilidad.", "error");
   }
 }
 
@@ -713,7 +738,9 @@ async function inicializarPanelTrabajador() {
   // Eventos de menú
   document.getElementById("form-nuevo-producto").addEventListener("submit", manejarCrearProducto);
   document.getElementById("form-editar-producto").addEventListener("submit", manejarEditarProducto);
-  document.getElementById("tabla-menu-body").addEventListener("click", manejarAccionesTablaMenu);
+  const gridMenu = document.getElementById("catalogo-menu-grid");
+  gridMenu.addEventListener("click", manejarClickCatalogoMenu);
+  gridMenu.addEventListener("change", manejarCambioDisponibilidadMenu);
   document.getElementById("btn-armar-menu").addEventListener("click", manejarArmarMenu);
   document.getElementById("filtro-menu-texto").addEventListener("input", renderizarTablaMenu);
   document.getElementById("filtro-menu-tipo").addEventListener("change", renderizarTablaMenu);

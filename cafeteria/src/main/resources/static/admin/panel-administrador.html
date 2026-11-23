@@ -1,17 +1,36 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Administrador — Cafetería Universitaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
   <!-- Barra superior del administrador -->
   <header class="topbar">
     <div class="topbar-brand">
-      <h1>Panel del Administrador</h1>
-      <span>Gestión de trabajadores y auditoría del historial de pedidos</span>
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+          <line x1="6" y1="2" x2="6" y2="4" />
+          <line x1="10" y1="2" x2="10" y2="4" />
+          <line x1="14" y1="2" x2="14" y2="4" />
+        </svg>
+      </div>
+      <div>
+        <h1>Cafetería Universitaria · Administración</h1>
+        <span>Gestión de personal y auditoría del historial de pedidos</span>
+      </div>
     </div>
     <div class="topbar-user">
       <span id="admin-info">Administrador</span>
@@ -22,6 +41,18 @@
   </header>
 
   <main class="container">
+    <!-- Banner decorativo 2D del panel administrativo -->
+    <section class="welcome-banner">
+      <div class="welcome-banner-text">
+        <h2>Administración de Cafetería</h2>
+        <p>
+          Registra cuentas del personal de mostrador y revisa la trazabilidad completa de todos los
+          pedidos procesados.
+        </p>
+      </div>
+      <img src="img/hero-cafeteria.svg" alt="Ilustración de la cafetería universitaria" class="welcome-banner-art" />
+    </section>
+
     <!-- Navegación por pestañas del panel administrador -->
     <nav class="tabs" aria-label="Secciones del panel de administrador">
       <button type="button" class="tab-btn active" data-tab="tab-trabajadores">
@@ -82,11 +113,7 @@
         <div class="card-header">
           <h2>Lista de trabajadores registrados</h2>
           <div class="toolbar" style="margin-bottom: 0;">
-            <input
-              type="search"
-              id="buscar-trabajador"
-              placeholder="Buscar por nombre, apellido o cédula..."
-            />
+            <input type="search" id="buscar-trabajador" placeholder="Buscar por nombre, apellido o cédula..." />
             <button type="button" id="btn-recargar-trabajadores" class="btn btn-secondary btn-sm">
               Actualizar lista
             </button>
@@ -119,12 +146,7 @@
         <div class="card-header">
           <h2>Historial de cambios de estado por pedido</h2>
           <form id="form-filtrar-historial" class="toolbar" style="margin-bottom: 0;" novalidate>
-            <input
-              type="number"
-              id="filtro-historial-id"
-              min="1"
-              placeholder="Filtrar por ID pedido..."
-            />
+            <input type="number" id="filtro-historial-id" min="1" placeholder="Filtrar por ID pedido..." />
             <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
             <button type="button" id="btn-limpiar-historial" class="btn btn-secondary btn-sm">
               Ver todos
@@ -181,4 +203,5 @@
 
   <script type="module" src="js/pages/administrador.js"></script>
 </body>
+
 </html>
