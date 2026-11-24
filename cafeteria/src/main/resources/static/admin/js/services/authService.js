@@ -99,3 +99,23 @@ export async function requerirRol(rolRequerido) {
   }
   return sesion;
 }
+
+/**
+ * Actualiza la contraseña del usuario autenticado (cliente, trabajador o administrador)
+ * mediante PUT /api/auth/contrasena (HU-USU-01).
+ * El servidor valida la contraseña actual con BCrypt, regenera el ID de sesión
+ * y devuelve 204 No Content si la operación fue exitosa.
+ *
+ * @param {string} contrasenaActual - Contraseña vigente de la cuenta.
+ * @param {string} contrasenaNueva - Nueva contraseña (mín. 8 caracteres, letra y número).
+ * @returns {Promise<null>} null cuando el servidor responde 204 No Content.
+ */
+export async function cambiarContrasena(contrasenaActual, contrasenaNueva) {
+  return request("/auth/contrasena", {
+    method: "PUT",
+    body: {
+      contrasenaActual,
+      contrasenaNueva
+    }
+  });
+}

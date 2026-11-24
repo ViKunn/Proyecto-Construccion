@@ -180,3 +180,41 @@ export function validarFormatoCodigoRetiro(codigo) {
   }
   return null;
 }
+
+/**
+ * Valida el formulario de cambio de contraseña (HU-USU-01 / PUT /api/auth/contrasena):
+ * - Contraseña actual obligatoria.
+ * - Contraseña nueva de al menos 8 caracteres, con una letra, un número y máx. 72 bytes.
+ * - Confirmación coincidente y distinta a la contraseña actual.
+ *
+ * @param {Object} datos - { contrasenaActual, contrasenaNueva, confirmarContrasena }.
+ * @returns {string|null} Mensaje de error o null si todo es válido.
+ */
+export function validarCambioContrasena(datos) {
+  const actual = String(datos.contrasenaActual || "");
+  const nueva = String(datos.contrasenaNueva || "");
+  const confirmar = String(datos.confirmarContrasena || "");
+
+  if (!actual) {
+    return "Debes ingresar tu contraseña actual.";
+  }
+
+  if (nueva.length < 8 || !/[A-Za-z]/.test(nueva) || !/\d/.test(nueva)) {
+    return "La nueva contraseña debe tener al menos 8 caracteres, una letra y un número.";
+  }
+
+  // BCrypt acepta un máximo de 72 bytes en UTF-8
+  if (new window.TextEncoder().encode(nueva).length > 72) {
+    return "La nueva contraseña supera el límite máximo de 72 bytes.";
+  }
+
+  if (nueva !== confirmar) {
+    return "La confirmación de la nueva contraseña no coincide.";
+  }
+
+  if (actual === nueva) {
+    return "La nueva contraseña debe ser diferente a la actual.";
+  }
+
+  return null;
+}
