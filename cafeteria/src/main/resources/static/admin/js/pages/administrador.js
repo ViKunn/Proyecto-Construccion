@@ -21,6 +21,7 @@ import {
   mostrarToast
 } from "../utils/ui.js";
 import { validarNuevoTrabajador } from "../utils/validators.js";
+import { inicializarModalCambioContrasena } from "../utils/cambioContrasenaModal.js";
 
 // Estado en memoria del panel de administrador
 let trabajadoresCache = [];
@@ -309,6 +310,7 @@ async function inicializarPanelAdministrador() {
 
   document.getElementById("admin-info").textContent = `Sesión: ${sesionActual.correo}`;
   document.getElementById("btn-cerrar-sesion").addEventListener("click", cerrarSesion);
+  inicializarModalCambioContrasena();
   inicializarPestanas();
 
   // Cierre de modal

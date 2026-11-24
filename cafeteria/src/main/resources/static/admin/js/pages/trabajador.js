@@ -40,6 +40,7 @@ import {
   validarImagenProducto,
   validarProducto
 } from "../utils/validators.js";
+import { inicializarModalCambioContrasena } from "../utils/cambioContrasenaModal.js";
 
 // Estado interno del panel del trabajador
 let estadoFiltroPedido = ESTADOS_PEDIDO.PENDIENTE;
@@ -708,6 +709,7 @@ async function inicializarPanelTrabajador() {
     `${sesionActual.nombreCompleto} (${sesionActual.correo})`;
 
   document.getElementById("btn-cerrar-sesion").addEventListener("click", cerrarSesion);
+  inicializarModalCambioContrasena();
   inicializarPestanas();
 
   document.querySelectorAll("[data-close-modal]").forEach((btn) => {
