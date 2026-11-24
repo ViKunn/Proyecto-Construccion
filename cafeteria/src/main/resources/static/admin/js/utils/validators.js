@@ -8,17 +8,30 @@
 import { APP_CONFIG, TIPOS_PRODUCTO } from "../config.js";
 
 /**
- * Valida que una cadena tenga formato básico de correo electrónico (máx. 254 caracteres).
+ * Valida que una cadena tenga formato básico de correo electrónico (máx. 254 caracteres)
+ * en tiempo lineal, evitando expresiones regulares con backtracking super-lineal.
  *
  * @param {string} correo - Correo ingresado.
  * @returns {boolean} true si es válido.
  */
 export function esCorreoValido(correo) {
   const limpio = String(correo || "").trim();
-  if (limpio.length === 0 || limpio.length > 254) {
+  if (limpio.length === 0 || limpio.length > 254 || /\s/.test(limpio)) {
     return false;
   }
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(limpio);
+
+  const partes = limpio.split("@");
+  if (partes.length !== 2) {
+    return false;
+  }
+
+  const [local, dominio] = partes;
+  if (!local || !dominio) {
+    return false;
+  }
+
+  const primerPunto = dominio.indexOf(".");
+  return primerPunto > 0 && primerPunto < dominio.length - 1 && !dominio.includes("..");
 }
 
 /**

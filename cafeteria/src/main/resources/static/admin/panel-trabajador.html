@@ -209,12 +209,15 @@
         <div class="card-header">
           <h2>Catálogo actual del menú</h2>
           <div class="toolbar" style="margin-bottom: 0;">
+            <label for="filtro-menu-texto" class="sr-only">Buscar producto por código o nombre</label>
             <input type="search" id="filtro-menu-texto" placeholder="Buscar por código o nombre..." />
+            <label for="filtro-menu-tipo" class="sr-only">Filtrar por tipo de producto</label>
             <select id="filtro-menu-tipo">
               <option value="">Todos los tipos</option>
               <option value="alimento">Alimentos</option>
               <option value="bebida">Bebidas</option>
             </select>
+            <label for="filtro-menu-disp" class="sr-only">Filtrar por disponibilidad</label>
             <select id="filtro-menu-disp">
               <option value="">Todas las disponibilidades</option>
               <option value="true">Disponibles</option>

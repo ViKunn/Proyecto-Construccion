@@ -330,32 +330,32 @@ async function inicializarPanelAdministrador() {
     evento.preventDefault();
     filtroIdPedido = document.getElementById("filtro-historial-id").value.trim();
     paginaHistorial = 0;
-    cargarHistorial();
+    void cargarHistorial();
   });
 
   document.getElementById("btn-limpiar-historial").addEventListener("click", () => {
     document.getElementById("filtro-historial-id").value = "";
     filtroIdPedido = "";
     paginaHistorial = 0;
-    cargarHistorial();
+    void cargarHistorial();
   });
 
   document.getElementById("btn-hist-anterior").addEventListener("click", () => {
     if (paginaHistorial > 0) {
       paginaHistorial -= 1;
-      cargarHistorial();
+      void cargarHistorial();
     }
   });
 
   document.getElementById("btn-hist-siguiente").addEventListener("click", () => {
     paginaHistorial += 1;
-    cargarHistorial();
+    void cargarHistorial();
   });
 
   document.getElementById("tabla-historial-body").addEventListener("click", (evento) => {
     const boton = evento.target.closest("[data-ver-historial]");
     if (boton) {
-      mostrarDetalleHistorial(boton.dataset.verHistorial);
+      void mostrarDetalleHistorial(boton.dataset.verHistorial);
     }
   });
 

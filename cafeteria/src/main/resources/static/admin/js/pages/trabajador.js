@@ -755,7 +755,7 @@ async function inicializarPanelTrabajador() {
   timerAutoRefresco = setInterval(() => {
     const hayModalAbierto = document.querySelector(".modal-backdrop.open");
     if (!hayModalAbierto) {
-      cargarPedidos();
+      void cargarPedidos();
     }
   }, APP_CONFIG.AUTO_REFRESH_MS);
 

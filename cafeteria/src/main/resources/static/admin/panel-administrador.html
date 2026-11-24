@@ -116,6 +116,7 @@
         <div class="card-header">
           <h2>Lista de trabajadores registrados</h2>
           <div class="toolbar" style="margin-bottom: 0;">
+            <label for="buscar-trabajador" class="sr-only">Buscar trabajador</label>
             <input type="search" id="buscar-trabajador" placeholder="Buscar por nombre, apellido o cédula..." />
             <button type="button" id="btn-recargar-trabajadores" class="btn btn-secondary btn-sm">
               Actualizar lista
@@ -149,6 +150,7 @@
         <div class="card-header">
           <h2>Historial de cambios de estado por pedido</h2>
           <form id="form-filtrar-historial" class="toolbar" style="margin-bottom: 0;" novalidate>
+            <label for="filtro-historial-id" class="sr-only">Filtrar historial por ID de pedido</label>
             <input type="number" id="filtro-historial-id" min="1" placeholder="Filtrar por ID pedido..." />
             <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
             <button type="button" id="btn-limpiar-historial" class="btn btn-secondary btn-sm">
