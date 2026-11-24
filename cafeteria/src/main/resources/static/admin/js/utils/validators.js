@@ -1,98 +1,163 @@
 /**
  * Archivo: validators.js
- * Propósito: Centralizar validaciones de formularios y reglas de negocio
- * del lado del cliente antes de enviar datos a los servicios/backend.
+ * Propósito: Validaciones del lado del cliente alineadas con el Anexo A de la
+ * documentación oficial de la API REST (cédula ecuatoriana módulo 10, nombres,
+ * contraseñas, productos, imágenes y códigos de retiro).
  */
 
-import { DISPONIBILIDAD, ESTADOS_PEDIDO, TIPOS_PRODUCTO } from "../config.js";
+import { APP_CONFIG, TIPOS_PRODUCTO } from "../config.js";
 
 /**
- * Valida que una cadena tenga formato básico de correo electrónico.
+ * Valida que una cadena tenga formato básico de correo electrónico (máx. 254 caracteres).
  *
  * @param {string} correo - Correo ingresado.
- * @returns {boolean} true si el formato es válido.
+ * @returns {boolean} true si es válido.
  */
 export function esCorreoValido(correo) {
-  const patron = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return patron.test(String(correo || "").trim());
+  const limpio = String(correo || "").trim();
+  if (limpio.length === 0 || limpio.length > 254) {
+    return false;
+  }
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(limpio);
 }
 
 /**
- * Valida los datos de un producto antes de crearlo o actualizarlo (HU-PER-01, HU-PER-02).
+ * Valida nombre o apellido de persona según Anexo A:
+ * solo letras (con tildes, ñ, ü), palabras separadas por espacio, de 2 a 50 caracteres.
  *
- * @param {Object} producto - Datos del producto a validar.
- * @param {boolean} [requerirCodigo=true] - Indica si codigoProducto es obligatorio.
- * @returns {string|null} Mensaje de error si hay fallo, o null si todo es válido.
+ * @param {string} texto - Nombre o apellido.
+ * @returns {boolean} true si cumple las reglas.
  */
-export function validarProducto(producto, requerirCodigo = true) {
-  if (requerirCodigo && !String(producto.codigoProducto || "").trim()) {
-    return "El código del producto es obligatorio.";
+export function esNombrePersonaValido(texto) {
+  const limpio = String(texto || "").trim().replace(/\s+/g, " ");
+  if (limpio.length < 2 || limpio.length > 50) {
+    return false;
+  }
+  return /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$/.test(limpio);
+}
+
+/**
+ * Valida una cédula ecuatoriana de 10 dígitos:
+ * provincia 01-24 o 30, tercer dígito 0-5 y dígito verificador (módulo 10).
+ *
+ * @param {string} cedula - Número de cédula.
+ * @returns {boolean} true si la cédula es válida.
+ */
+export function esCedulaEcuatorianaValida(cedula) {
+  const limpio = String(cedula || "").trim();
+  if (!/^\d{10}$/.test(limpio)) {
+    return false;
   }
 
-  if (!String(producto.nombre || "").trim()) {
-    return "El nombre del producto es obligatorio.";
+  const provincia = Number(limpio.slice(0, 2));
+  if (!((provincia >= 1 && provincia <= 24) || provincia === 30)) {
+    return false;
   }
 
-  const precio = Number(producto.precio);
-  if (Number.isNaN(precio) || precio <= 0) {
-    return "El precio debe ser un número mayor que 0.";
+  const tercerDigito = Number(limpio[2]);
+  if (tercerDigito < 0 || tercerDigito > 5) {
+    return false;
   }
 
-  const tiposValidos = Object.values(TIPOS_PRODUCTO);
-  if (!tiposValidos.includes(producto.tipoProducto)) {
-    return "El tipo de producto debe ser alimento o bebida.";
+  // Algoritmo de verificación módulo 10 para personas naturales en Ecuador
+  const coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+  let suma = 0;
+  for (let i = 0; i < 9; i += 1) {
+    let valor = Number(limpio[i]) * coeficientes[i];
+    if (valor >= 10) {
+      valor -= 9;
+    }
+    suma += valor;
   }
 
-  const dispValidas = Object.values(DISPONIBILIDAD);
-  if (!dispValidas.includes(producto.disponible)) {
-    return "La disponibilidad debe ser 'si' o 'no'.";
+  const residuo = suma % 10;
+  const digitoEsperado = residuo === 0 ? 0 : 10 - residuo;
+  return digitoEsperado === Number(limpio[9]);
+}
+
+/**
+ * Valida un archivo de imagen opcional u obligatorio (JPG, PNG o WEBP, hasta 2 MB).
+ *
+ * @param {File|null|undefined} archivo - Archivo seleccionado en input[type="file"].
+ * @param {boolean} [obligatorio=false] - Si true, exige que exista archivo.
+ * @returns {string|null} Mensaje de error o null si es válido.
+ */
+export function validarImagenProducto(archivo, obligatorio = false) {
+  if (!archivo) {
+    return obligatorio ? "Debes seleccionar una imagen (JPG, PNG o WEBP)." : null;
+  }
+
+  const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
+  if (!tiposPermitidos.includes(archivo.type)) {
+    return "La imagen debe estar en formato JPG, PNG o WEBP.";
+  }
+
+  if (archivo.size > APP_CONFIG.MAX_IMAGEN_BYTES) {
+    return "La imagen supera el tamaño máximo permitido de 2 MB.";
   }
 
   return null;
 }
 
 /**
- * Verifica si una transición de estado de pedido cumple la regla RN-NEG-06:
- * pendiente -> en preparación -> listo -> entregado (sin saltos ni retrocesos).
+ * Valida los datos de un producto antes de crearlo o editarlo (Anexo A).
  *
- * @param {string} estadoActual - Estado vigente del pedido.
- * @param {string} nuevoEstado - Estado al que se intenta pasar.
- * @returns {boolean} true si la transición es válida.
+ * @param {Object} producto - { nombre, precio, tipoProducto }.
+ * @param {boolean} [validarTipo=true] - true al crear (el tipo no cambia al editar).
+ * @returns {string|null} Mensaje de error o null si es válido.
  */
-export function esTransicionEstadoValida(estadoActual, nuevoEstado) {
-  const transicionesPermitidas = {
-    [ESTADOS_PEDIDO.PENDIENTE]: ESTADOS_PEDIDO.EN_PREPARACION,
-    [ESTADOS_PEDIDO.EN_PREPARACION]: ESTADOS_PEDIDO.LISTO,
-    [ESTADOS_PEDIDO.LISTO]: ESTADOS_PEDIDO.ENTREGADO
-  };
-  return transicionesPermitidas[estadoActual] === nuevoEstado;
+export function validarProducto(producto, validarTipo = true) {
+  const nombre = String(producto.nombre || "").trim();
+  if (nombre.length < 2 || nombre.length > 60) {
+    return "El nombre del producto debe tener entre 2 y 60 caracteres.";
+  }
+
+  const precioNum = Number(String(producto.precio ?? "").replace(",", "."));
+  if (Number.isNaN(precioNum) || precioNum <= 0 || precioNum > 999.99) {
+    return "El precio debe ser mayor a 0 y hasta 999.99.";
+  }
+
+  // Verifica máximo 2 decimales
+  if (!/^\d+(?:[.,]\d{1,2})?$/.test(String(producto.precio).trim())) {
+    return "El precio puede tener como máximo 2 decimales.";
+  }
+
+  if (validarTipo && !Object.values(TIPOS_PRODUCTO).includes(producto.tipoProducto)) {
+    return "El tipo de producto debe ser alimento o bebida.";
+  }
+
+  return null;
 }
 
 /**
- * Valida los datos del formulario para crear una cuenta de trabajador.
+ * Valida el formulario de creación de un trabajador según Anexo A.
  *
- * @param {Object} datos - Datos del nuevo trabajador.
- * @returns {string|null} Mensaje de error o null si es válido.
+ * @param {Object} datos - { nombre, apellido, cedula, correo, contrasena, confirmarContrasena }.
+ * @returns {string|null} Mensaje de error o null si todo es correcto.
  */
 export function validarNuevoTrabajador(datos) {
-  if (!String(datos.nombre || "").trim() || !String(datos.apellido || "").trim()) {
-    return "El nombre y el apellido son obligatorios.";
+  if (!esNombrePersonaValido(datos.nombre)) {
+    return "El nombre debe tener entre 2 y 50 letras.";
   }
 
-  const cedula = String(datos.cedula || "").trim();
-  if (!/^\d{10}$/.test(cedula)) {
-    return "La cédula debe contener exactamente 10 dígitos numéricos.";
+  if (!esNombrePersonaValido(datos.apellido)) {
+    return "El apellido debe tener entre 2 y 50 letras.";
+  }
+
+  if (!esCedulaEcuatorianaValida(datos.cedula)) {
+    return "La cédula ecuatoriana ingresada no es válida (revisa los 10 dígitos).";
   }
 
   if (!esCorreoValido(datos.correo)) {
     return "Ingresa un correo electrónico válido.";
   }
 
-  if (!datos.contrasena || datos.contrasena.length < 6) {
-    return "La contraseña debe tener al menos 6 caracteres.";
+  const clave = String(datos.contrasena || "");
+  if (clave.length < 8 || !/[A-Za-z]/.test(clave) || !/\d/.test(clave)) {
+    return "La contraseña debe tener al menos 8 caracteres, una letra y un número.";
   }
 
-  if (datos.contrasena !== datos.confirmarContrasena) {
+  if (clave !== datos.confirmarContrasena) {
     return "Las contraseñas no coinciden.";
   }
 
@@ -100,27 +165,18 @@ export function validarNuevoTrabajador(datos) {
 }
 
 /**
- * Valida el formulario de actualización de contraseña del administrador.
+ * Valida el formato del código de retiro (6 caracteres alfanuméricos sin I, O, 0, 1).
  *
- * @param {Object} datos - Objeto con contrasenaActual, nuevaContrasena y confirmarContrasena.
- * @returns {string|null} Mensaje de error o null si es válido.
+ * @param {string} codigo - Código ingresado por el trabajador.
+ * @returns {string|null} Mensaje de error o null si el formato es correcto.
  */
-export function validarCambioContrasena(datos) {
-  if (!String(datos.contrasenaActual || "").trim()) {
-    return "Debes ingresar tu contraseña actual.";
+export function validarFormatoCodigoRetiro(codigo) {
+  const limpio = String(codigo || "").trim().toUpperCase();
+  if (!limpio) {
+    return "Ingresa el código de retiro presentado por el cliente.";
   }
-
-  if (!datos.nuevaContrasena || datos.nuevaContrasena.length < 6) {
-    return "La nueva contraseña debe tener al menos 6 caracteres.";
+  if (!/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/.test(limpio)) {
+    return "El código de retiro debe tener 6 caracteres válidos (sin I, O, 0 ni 1).";
   }
-
-  if (datos.nuevaContrasena !== datos.confirmarContrasena) {
-    return "La confirmación de la nueva contraseña no coincide.";
-  }
-
-  if (datos.contrasenaActual === datos.nuevaContrasena) {
-    return "La nueva contraseña debe ser diferente a la actual.";
-  }
-
   return null;
 }

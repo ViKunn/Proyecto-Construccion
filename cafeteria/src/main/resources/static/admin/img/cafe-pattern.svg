@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none">
+  <!-- Patrón 2D sutil de cafetería: granos de café, taza humeante y medialuna -->
+  <g stroke="#6f422b" stroke-opacity="0.11" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Taza de café -->
+    <path d="M22 36h22v14a8 8 0 0 1-8 8h-6a8 8 0 0 1-8-8V36Z"/>
+    <path d="M44 40h4a4 4 0 0 1 0 8h-4"/>
+    <path d="M18 62h30"/>
+    <path d="M28 28c0-3 2-4 2-7"/>
+    <path d="M36 28c0-3 2-4 2-7"/>
+
+    <!-- Grano de café 1 -->
+    <ellipse cx="116" cy="34" rx="10" ry="14" transform="rotate(28 116 34)"/>
+    <path d="M122 22c-6 6-6 18-12 24"/>
+
+    <!-- Croissant / Medialuna 2D -->
+    <path d="M98 114c6-12 24-12 30 0-4 6-10 8-15 8s-11-2-15-8Z"/>
+    <path d="M107 107l3 13"/>
+    <path d="M119 107l-3 13"/>
+
+    <!-- Grano de café 2 -->
+    <ellipse cx="38" cy="118" rx="9" ry="13" transform="rotate(-24 38 118)"/>
+    <path d="M33 107c5 6 5 16 10 22"/>
+
+    <!-- Pequeños destellos cálidos -->
+    <circle cx="80" cy="76" r="2.2" fill="#c87a3b" fill-opacity="0.16" stroke="none"/>
+    <circle cx="144" cy="86" r="1.8" fill="#6f422b" fill-opacity="0.14" stroke="none"/>
+    <circle cx="14" cy="86" r="1.8" fill="#c87a3b" fill-opacity="0.14" stroke="none"/>
+  </g>
+</svg>

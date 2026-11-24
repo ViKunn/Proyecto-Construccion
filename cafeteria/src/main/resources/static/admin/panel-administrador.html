@@ -1,17 +1,36 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Administrador — Cafetería Universitaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
-  <!-- Barra superior fija con identificación de rol y botón de salida -->
+  <!-- Barra superior del administrador -->
   <header class="topbar">
     <div class="topbar-brand">
-      <h1>Panel del Administrador</h1>
-      <span>Gestión de cuentas de trabajadores y seguridad</span>
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+          <line x1="6" y1="2" x2="6" y2="4" />
+          <line x1="10" y1="2" x2="10" y2="4" />
+          <line x1="14" y1="2" x2="14" y2="4" />
+        </svg>
+      </div>
+      <div>
+        <h1>Cafetería Universitaria · Administración</h1>
+        <span>Gestión de personal y auditoría del historial de pedidos</span>
+      </div>
     </div>
     <div class="topbar-user">
       <span id="admin-info">Administrador</span>
@@ -22,10 +41,31 @@
   </header>
 
   <main class="container">
-    <!-- Sección superior: dos tarjetas en paralelo (crear trabajador y actualizar contraseña) -->
-    <div class="grid-2">
-      <!-- Formulario para registrar una nueva cuenta de trabajador -->
-      <section class="card">
+    <!-- Banner decorativo 2D del panel administrativo -->
+    <section class="welcome-banner">
+      <div class="welcome-banner-text">
+        <h2>Administración de Cafetería</h2>
+        <p>
+          Registra cuentas del personal de mostrador y revisa la trazabilidad completa de todos los
+          pedidos procesados.
+        </p>
+      </div>
+      <img src="img/hero-cafeteria.svg" alt="Ilustración de la cafetería universitaria" class="welcome-banner-art" />
+    </section>
+
+    <!-- Navegación por pestañas del panel administrador -->
+    <nav class="tabs" aria-label="Secciones del panel de administrador">
+      <button type="button" class="tab-btn active" data-tab="tab-trabajadores">
+        Gestión de Trabajadores
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-historial">
+        Historial de Pedidos
+      </button>
+    </nav>
+
+    <!-- ==================== PESTAÑA 1: GESTIÓN DE TRABAJADORES ==================== -->
+    <section id="tab-trabajadores" class="tab-panel active">
+      <div class="card">
         <div class="card-header">
           <h2>Crear cuenta de trabajador</h2>
         </div>
@@ -34,31 +74,27 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="trab-nombre">Nombre</label>
-              <input type="text" id="trab-nombre" placeholder="Ej. María" required />
+              <input type="text" id="trab-nombre" placeholder="Ej. Ana" required />
             </div>
 
             <div class="form-group">
               <label for="trab-apellido">Apellido</label>
-              <input type="text" id="trab-apellido" placeholder="Ej. Gómez" required />
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="trab-cedula">Cédula (10 dígitos)</label>
-              <input type="text" id="trab-cedula" maxlength="10" placeholder="1712345678" required />
+              <input type="text" id="trab-apellido" placeholder="Ej. Loor" required />
             </div>
 
             <div class="form-group">
-              <label for="trab-correo">Correo electrónico</label>
-              <input type="email" id="trab-correo" placeholder="maria.gomez@epn.edu.ec" required />
+              <label for="trab-cedula">Cédula ecuatoriana (10 dígitos)</label>
+              <input type="text" id="trab-cedula" maxlength="10" placeholder="1713175071" required />
             </div>
-          </div>
 
-          <div class="form-grid">
+            <div class="form-group">
+              <label for="trab-correo">Correo institucional</label>
+              <input type="email" id="trab-correo" placeholder="ana.loor@institucion.edu.ec" required />
+            </div>
+
             <div class="form-group">
               <label for="trab-contrasena">Contraseña inicial</label>
-              <input type="password" id="trab-contrasena" placeholder="Mínimo 6 caracteres" required />
+              <input type="password" id="trab-contrasena" placeholder="Mín. 8 caracteres, letra y número" required />
             </div>
 
             <div class="form-group">
@@ -67,77 +103,105 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" id="btn-guardar-trabajador" class="btn btn-primary">
             Registrar trabajador
           </button>
         </form>
-      </section>
-
-      <!-- Formulario para actualizar la contraseña propia del administrador -->
-      <section class="card">
-        <div class="card-header">
-          <h2>Actualizar mi contraseña</h2>
-        </div>
-
-        <form id="form-cambiar-clave" novalidate>
-          <div class="form-group">
-            <label for="clave-actual">Contraseña actual</label>
-            <input type="password" id="clave-actual" required />
-          </div>
-
-          <div class="form-group">
-            <label for="clave-nueva">Nueva contraseña</label>
-            <input type="password" id="clave-nueva" placeholder="Mínimo 6 caracteres" required />
-          </div>
-
-          <div class="form-group">
-            <label for="clave-confirmar">Confirmar nueva contraseña</label>
-            <input type="password" id="clave-confirmar" required />
-          </div>
-
-          <button type="submit" class="btn btn-warning">
-            Actualizar contraseña
-          </button>
-        </form>
-      </section>
-    </div>
-
-    <!-- Sección inferior: listado consultable de todos los trabajadores registrados -->
-    <section class="card">
-      <div class="card-header">
-        <h2>Lista de trabajadores registrados</h2>
-        <div class="toolbar" style="margin-bottom: 0;">
-          <input
-            type="search"
-            id="buscar-trabajador"
-            placeholder="Buscar por nombre, apellido o cédula..."
-          />
-          <button type="button" id="btn-recargar-trabajadores" class="btn btn-secondary btn-sm">
-            Actualizar lista
-          </button>
-        </div>
       </div>
 
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre completo</th>
-              <th>Cédula</th>
-              <th>Correo</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-trabajadores-body">
-            <tr>
-              <td colspan="4" class="empty-state">Cargando trabajadores...</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="card">
+        <div class="card-header">
+          <h2>Lista de trabajadores registrados</h2>
+          <div class="toolbar" style="margin-bottom: 0;">
+            <input type="search" id="buscar-trabajador" placeholder="Buscar por nombre, apellido o cédula..." />
+            <button type="button" id="btn-recargar-trabajadores" class="btn btn-secondary btn-sm">
+              Actualizar lista
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre completo</th>
+                <th>Cédula</th>
+                <th>Correo</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-trabajadores-body">
+              <tr>
+                <td colspan="4" class="empty-state">Cargando trabajadores...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA 2: HISTORIAL DE PEDIDOS ==================== -->
+    <section id="tab-historial" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <h2>Historial de cambios de estado por pedido</h2>
+          <form id="form-filtrar-historial" class="toolbar" style="margin-bottom: 0;" novalidate>
+            <input type="number" id="filtro-historial-id" min="1" placeholder="Filtrar por ID pedido..." />
+            <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+            <button type="button" id="btn-limpiar-historial" class="btn btn-secondary btn-sm">
+              Ver todos
+            </button>
+          </form>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID Pedido</th>
+                <th>Estado actual</th>
+                <th>Línea de tiempo de cambios</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-historial-body">
+              <tr>
+                <td colspan="4" class="empty-state">Cargando historial...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-bar">
+          <span id="historial-resumen" class="text-muted">Total: 0 pedidos</span>
+          <div class="actions-cell">
+            <button type="button" id="btn-hist-anterior" class="btn btn-secondary btn-sm" disabled>
+              Anterior
+            </button>
+            <span id="historial-pagina" class="text-muted" style="align-self: center;">Página 1</span>
+            <button type="button" id="btn-hist-siguiente" class="btn btn-secondary btn-sm" disabled>
+              Siguiente
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
+  <!-- ==================== MODAL: DETALLE COMPLETO DEL PEDIDO (ADMIN) ==================== -->
+  <div id="modal-detalle-historial" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-hist-titulo">Detalle del pedido</h3>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-detalle-historial">
+          Cerrar
+        </button>
+      </div>
+      <div id="modal-hist-contenido"></div>
+    </div>
+  </div>
+
   <script type="module" src="js/pages/administrador.js"></script>
 </body>
+
 </html>

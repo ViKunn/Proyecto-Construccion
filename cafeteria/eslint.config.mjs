@@ -17,7 +17,10 @@ export default [
         setTimeout: "readonly",
         setInterval: "readonly",
         clearInterval: "readonly",
-        console: "readonly"
+        console: "readonly",
+        FormData: "readonly",
+        File: "readonly",
+        URLSearchParams: "readonly"
       }
     },
     rules: {

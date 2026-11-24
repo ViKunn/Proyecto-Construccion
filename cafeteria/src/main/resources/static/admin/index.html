@@ -1,45 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Acceso Administrativo — Cafetería Universitaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body class="login-page">
-  <!-- Tarjeta principal de inicio de sesión para Trabajador y Administrador -->
-  <main class="login-card">
+  <!-- Contenedor dividido: ilustración 2D de cafetería + formulario de acceso -->
+  <div class="login-shell">
+    <section class="login-showcase" aria-label="Bienvenida a la cafetería">
+      <img src="img/hero-cafeteria.svg" alt="Mostrador de la cafetería universitaria con café y repostería" />
+      <div>
+        <h2>Gestión ágil en cada receso</h2>
+        <p>
+          Administra pedidos anticipados, valida códigos de retiro en segundos y mantén actualizado
+          el menú diario de la cafetería.
+        </p>
+      </div>
+    </section>
+
+    <main class="login-card">
     <header class="login-header">
+      <div class="login-emblem" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+          <line x1="6" y1="2" x2="6" y2="4" />
+          <line x1="10" y1="2" x2="10" y2="4" />
+          <line x1="14" y1="2" x2="14" y2="4" />
+        </svg>
+      </div>
       <h1>Cafetería Universitaria</h1>
-      <p>Portal Administrativo (Personal y Administrador)</p>
+      <p>Portal de Mostrador y Administración</p>
     </header>
 
-    <!-- Contenedor dinámico para mostrar errores de autenticación -->
+    <!-- Contenedor dinámico para mostrar errores devueltos por el servidor -->
     <div id="login-error" class="alert alert-error hidden" role="alert"></div>
 
     <form id="form-login" novalidate>
       <div class="form-group">
         <label for="correo">Correo institucional</label>
-        <input
-          type="email"
-          id="correo"
-          name="correo"
-          placeholder="ejemplo@epn.edu.ec"
-          autocomplete="username"
-          required
-        />
+        <input type="email" id="correo" name="correo" placeholder="usuario@institucion.edu.ec" autocomplete="username"
+          required />
       </div>
 
       <div class="form-group">
         <label for="contrasena">Contraseña</label>
-        <input
-          type="password"
-          id="contrasena"
-          name="contrasena"
-          placeholder="Ingresa tu contraseña"
-          autocomplete="current-password"
-          required
-        />
+        <input type="password" id="contrasena" name="contrasena" placeholder="Ingresa tu contraseña"
+          autocomplete="current-password" required />
       </div>
 
       <button type="submit" id="btn-ingresar" class="btn btn-primary btn-block">
@@ -47,14 +64,13 @@
       </button>
     </form>
 
-    <!-- Ayuda visible únicamente cuando la aplicación está en modo simulado (USE_MOCK = true) -->
-    <aside id="mock-credentials" class="mock-help hidden">
-      <strong>Modo de prueba (datos simulados activos):</strong><br />
-      Trabajador: <code>trabajador@epn.edu.ec</code> / <code>trab123</code><br />
-      Administrador: <code>admin@epn.edu.ec</code> / <code>admin123</code>
-    </aside>
-  </main>
+    <p class="login-footer-note">
+      Acceso exclusivo para personal de cafetería y administración.
+    </p>
+    </main>
+  </div>
 
   <script type="module" src="js/pages/login.js"></script>
 </body>
+
 </html>

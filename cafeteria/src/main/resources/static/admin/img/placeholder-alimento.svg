@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none">
+  <!-- Ilustración 2D de Alimento para productos sin foto cargada -->
+  <defs>
+    <linearGradient id="bgFood" x1="0" y1="0" x2="320" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f7eadb"/>
+      <stop offset="100%" stop-color="#ebd2b4"/>
+    </linearGradient>
+    <linearGradient id="croissant" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e39d5b"/>
+      <stop offset="100%" stop-color="#b86628"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#bgFood)"/>
+  <circle cx="52" cy="36" r="44" fill="#c87a3b" fill-opacity="0.14"/>
+  <circle cx="278" cy="172" r="56" fill="#4a2c1d" fill-opacity="0.08"/>
+
+  <!-- Plato 2D -->
+  <ellipse cx="160" cy="146" rx="76" ry="14" fill="#fffdf9" stroke="#d5bfa7" stroke-width="3"/>
+  <ellipse cx="160" cy="146" rx="52" ry="8" fill="#f3e6d6"/>
+
+  <!-- Croissant 2D -->
+  <path d="M104 134c14-44 98-44 112 0-10 15-30 20-56 20s-46-5-56-20Z" fill="url(#croissant)" stroke="#7c4116" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M132 108l10 42" stroke="#7c4116" stroke-width="3" stroke-linecap="round"/>
+  <path d="M188 108l-10 42" stroke="#7c4116" stroke-width="3" stroke-linecap="round"/>
+  <path d="M160 101v51" stroke="#7c4116" stroke-width="3" stroke-linecap="round"/>
+</svg>

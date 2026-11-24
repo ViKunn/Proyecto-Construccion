@@ -1,17 +1,16 @@
 /**
  * Archivo: ui.js
- * Propósito: Utilidades reutilizables para la interfaz de usuario:
- * formateo de moneda y fechas, escape seguro de texto (prevención de XSS)
- * y renderizado de mensajes/alertas visuales.
+ * Propósito: Utilidades reutilizables para renderizado seguro (escape contra XSS),
+ * formato de moneda/fechas, badges de estado y notificaciones toast.
  */
 
 import { ESTADOS_PEDIDO, ETIQUETAS_ESTADO } from "../config.js";
 
 /**
- * Escapa caracteres HTML especiales para insertar texto de forma segura en plantillas.
+ * Escapa caracteres HTML especiales para prevenir inyección de HTML/XSS.
  *
  * @param {string|number|null|undefined} valor - Texto a escapar.
- * @returns {string} Cadena segura para mostrar en HTML.
+ * @returns {string} Texto seguro para insertar en plantillas HTML.
  */
 export function escaparHtml(valor) {
   return String(valor ?? "")
@@ -23,10 +22,10 @@ export function escaparHtml(valor) {
 }
 
 /**
- * Formatea un número como importe monetario en dólares estadounidenses (USD).
+ * Formatea un valor numérico como importe monetario USD con 2 decimales.
  *
- * @param {number|string} monto - Valor numérico del precio o total.
- * @returns {string} Importe formateado (ej. "$2.50").
+ * @param {number|string} monto - Importe numérico.
+ * @returns {string} Ejemplo: "$7.25".
  */
 export function formatearMoneda(monto) {
   const numero = Number(monto);
@@ -37,10 +36,10 @@ export function formatearMoneda(monto) {
 }
 
 /**
- * Convierte una fecha ISO a un formato legible en español.
+ * Formatea una fecha ISO 8601 UTC a hora local legible en español.
  *
- * @param {string} fechaIso - Cadena de fecha ISO (ej. "2026-11-21T09:15:00").
- * @returns {string} Fecha y hora formateadas para el usuario.
+ * @param {string} fechaIso - Fecha ISO devuelta por el backend.
+ * @returns {string} Fecha y hora formateadas.
  */
 export function formatearFecha(fechaIso) {
   if (!fechaIso) {
@@ -60,10 +59,10 @@ export function formatearFecha(fechaIso) {
 }
 
 /**
- * Devuelve la clase CSS y etiqueta correspondiente a un estado de pedido.
+ * Genera el badge HTML correspondiente a un estado de pedido del backend.
  *
- * @param {string} estado - Estado del pedido (pendiente, en preparación, listo, entregado).
- * @returns {string} HTML del badge visual de estado.
+ * @param {string} estado - pendiente, en_preparacion, listo o entregado.
+ * @returns {string} Marcado HTML del badge.
  */
 export function crearBadgeEstado(estado) {
   const clases = {
@@ -73,16 +72,16 @@ export function crearBadgeEstado(estado) {
     [ESTADOS_PEDIDO.ENTREGADO]: "badge-entregado"
   };
 
-  const clase = clases[estado] || "badge-neutral";
+  const clase = clases[estado] || "badge-entregado";
   const etiqueta = ETIQUETAS_ESTADO[estado] || estado;
   return `<span class="badge ${clase}">${escaparHtml(etiqueta)}</span>`;
 }
 
 /**
- * Muestra una alerta temporal dentro del contenedor de notificaciones (#toast-container).
+ * Muestra una notificación temporal (toast) en la esquina inferior derecha.
  *
- * @param {string} mensaje - Texto informativo a mostrar al usuario.
- * @param {"exito"|"error"|"aviso"|"info"} [tipo="info"] - Estilo visual de la alerta.
+ * @param {string} mensaje - Mensaje a mostrar.
+ * @param {"exito"|"error"|"aviso"|"info"} [tipo="info"] - Tipo visual.
  */
 export function mostrarToast(mensaje, tipo = "info") {
   let contenedor = document.getElementById("toast-container");
@@ -98,9 +97,8 @@ export function mostrarToast(mensaje, tipo = "info") {
   toast.textContent = mensaje;
   contenedor.appendChild(toast);
 
-  // Se elimina automáticamente después de 4 segundos para no saturar la pantalla
   setTimeout(() => {
     toast.classList.add("toast-oculto");
     setTimeout(() => toast.remove(), 300);
-  }, 4000);
+  }, 4500);
 }
