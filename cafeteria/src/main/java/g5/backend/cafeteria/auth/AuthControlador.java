@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthControlador {
 
    public record LoginRequest(String correo, String contrasena) {
+   }
+
+   public record CambioContrasenaRequest(String contrasenaActual, String contrasenaNueva) {
    }
 
    /** Lo único que ve el navegador. Los ids permanecen en la sesión del servidor. */
@@ -60,6 +64,23 @@ public class AuthControlador {
    @PostMapping("/logout")
    public ResponseEntity<Void> logout(HttpServletRequest request) {
       sesion.cerrar(request);
+      return ResponseEntity.noContent().build();
+   }
+
+   /**
+    * HU-USU-01: el usuario autenticado (cliente, trabajador o administrador) cambia su contraseña.
+    * Body: {"contrasenaActual":"...","contrasenaNueva":"..."}. El usuario sale de la sesión.
+    * Respuestas: 204 si se cambió, 400 si los datos no son válidos o la contraseña actual es
+    * incorrecta, 401 si no hay sesión.
+    */
+   @PutMapping("/contrasena")
+   public ResponseEntity<Void> cambiarContrasena(@RequestBody(required = false) CambioContrasenaRequest body,
+                                                 HttpServletRequest request) {
+      UsuarioAutenticado u = sesion.exigir(request);
+      servicio.cambiarContrasena(u.idUsuario(),
+            body == null ? null : body.contrasenaActual(),
+            body == null ? null : body.contrasenaNueva());
+      request.changeSessionId();   // nuevo id de sesión tras cambiar credenciales
       return ResponseEntity.noContent().build();
    }
 }

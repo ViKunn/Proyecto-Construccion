@@ -1,6 +1,11 @@
 package g5.backend.cafeteria.auth;
 
 import g5.backend.cafeteria.auth.AuthRepositorio.RegistroLogin;
+import g5.backend.cafeteria.core.NoEncontradoException;
+import g5.backend.cafeteria.core.ValidacionException;
+import g5.backend.cafeteria.core.ValidadorDatos;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +21,14 @@ public class AuthServicio {
 
    private final AuthRepositorio repositorio;
    private final PasswordEncoder encoder;
+   private final ValidadorDatos validador;
    /** Hash válido para comparar aunque el correo no exista (evita revelar usuarios por tiempo de respuesta). */
    private final String hashFalso;
 
-   public AuthServicio(AuthRepositorio repositorio, PasswordEncoder encoder) {
+   public AuthServicio(AuthRepositorio repositorio, PasswordEncoder encoder, ValidadorDatos validador) {
       this.repositorio = repositorio;
       this.encoder = encoder;
+      this.validador = validador;
       this.hashFalso = encoder.encode("hash-falso-para-igualar-tiempos");
    }
 
@@ -58,5 +65,52 @@ public class AuthServicio {
 
       return Optional.of(new UsuarioAutenticado(
             r.idUsuario(), r.tipo(), r.idPerfil(), r.correo(), r.nombre(), r.apellido()));
+   }
+
+   /**
+    * Cambia la contraseña del usuario autenticado (HU-USU-01). Sirve para los tres tipos
+    * de usuario: cliente, trabajador y administrador, porque todos comparten la tabla usuario.
+    *
+    * <p>Reglas: la contraseña actual debe ser correcta; la nueva debe cumplir la política
+    * de {@link ValidadorDatos#errorContrasena(String)} (mínimo 8 caracteres, al menos una
+    * letra y un número, máximo 72 bytes) y ser distinta de la actual. Se guarda solo el
+    * hash BCrypt.</p>
+    *
+    * @param idUsuario        id del usuario, tomado de la sesión (nunca del frontend)
+    * @param contrasenaActual contraseña vigente, para confirmar la identidad
+    * @param contrasenaNueva  contraseña que reemplazará a la actual
+    * @throws ValidacionException   si algún dato no es válido o la contraseña actual es incorrecta
+    * @throws NoEncontradoException si el usuario de la sesión ya no existe
+    */
+   public void cambiarContrasena(long idUsuario, String contrasenaActual, String contrasenaNueva) {
+      Map<String, String> errores = new LinkedHashMap<>();
+      if (contrasenaActual == null || contrasenaActual.isEmpty()) {
+         errores.put("contrasenaActual", "La contraseña actual es obligatoria");
+      } else if (contrasenaActual.length() > MAX_CONTRASENA) {
+         errores.put("contrasenaActual", "La contraseña actual es incorrecta");
+      }
+      String errorNueva = validador.errorContrasena(contrasenaNueva);
+      if (errorNueva != null) {
+         errores.put("contrasenaNueva", errorNueva);
+      }
+      if (!errores.isEmpty()) {
+         throw new ValidacionException(errores);
+      }
+
+      String hashActual = repositorio.buscarHashPorId(idUsuario)
+            .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado"));
+
+      if (!encoder.matches(contrasenaActual, hashActual)) {
+         throw new ValidacionException(Map.of("contrasenaActual", "La contraseña actual es incorrecta"));
+      }
+      if (contrasenaNueva.equals(contrasenaActual)) {
+         throw new ValidacionException(Map.of("contrasenaNueva",
+               "La nueva contraseña debe ser distinta de la actual"));
+      }
+
+      if (!repositorio.actualizarContrasena(idUsuario, encoder.encode(contrasenaNueva))) {
+         throw new NoEncontradoException("Usuario no encontrado");
+      }
+      log.info("Contraseña actualizada para el usuario {}", idUsuario);
    }
 }
