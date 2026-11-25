@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
+ * Manejador global de excepciones para todos los controladores REST de la aplicación.
  * Formato único de errores: {"mensaje": "...", "errores": {"campo": "detalle"}}
  */
 @RestControllerAdvice
