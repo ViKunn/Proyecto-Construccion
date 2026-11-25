@@ -19,11 +19,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controlador REST que gestiona el ciclo de vida de los pedidos y la entrega en
+ * mostrador.
+ * Expone endpoints para la creación de órdenes por clientes (PN-01),
+ * seguimiento de pedidos (RU-05)
+ * y despacho operativo por parte del personal de cafetería (PN-02, RU-07).
+ */
+
 @RestController
 @RequestMapping("/api/pedidos")
 public class PedidoControlador {
 
-   private static final TipoUsuario[] PERSONAL = {TipoUsuario.TRABAJADOR, TipoUsuario.ADMINISTRADOR};
+   private static final TipoUsuario[] PERSONAL = { TipoUsuario.TRABAJADOR, TipoUsuario.ADMINISTRADOR };
 
    // ---------------------------- DTOs ----------------------------
 
@@ -34,7 +42,7 @@ public class PedidoControlador {
    }
 
    public record DetalleDto(long codigoProducto, String nombre, BigDecimal precioUnitario,
-                            int cantidad, BigDecimal subtotal) {
+         int cantidad, BigDecimal subtotal) {
       static DetalleDto de(DetallePedido d) {
          return new DetalleDto(d.codigoProducto(), d.nombreProducto(), d.precioUnitario(),
                d.cantidad(), d.subtotal());
@@ -45,13 +53,15 @@ public class PedidoControlador {
    }
 
    /**
-    * Cliente: ve su codigoRetiro. Personal: ve al cliente pero NO el código (lo verifican contra lo que
-    * presenta el cliente; si lo vieran, la verificación no tendría sentido). Los null se omiten del JSON.
+    * Aplica una proyección segura: el cliente ve su código de retiro pero no datos
+    * redundantes;
+    * el personal visualiza la identidad del cliente pero nunca el código de retiro
+    * con antelación.
     */
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record PedidoDto(long idPedido, EstadoPedido estado, OffsetDateTime fechaRegistro,
-                           BigDecimal importeTotal, String codigoRetiro, ClienteDto cliente,
-                           List<DetalleDto> items) {
+         BigDecimal importeTotal, String codigoRetiro, ClienteDto cliente,
+         List<DetalleDto> items) {
 
       static PedidoDto paraCliente(Pedido p) {
          return new PedidoDto(p.idPedido(), p.estado(), p.fechaRegistro(), p.importeTotal(),
@@ -78,7 +88,10 @@ public class PedidoControlador {
 
    // ---------------------------- Público ----------------------------
 
-   /** Reglas que el frontend puede necesitar. cantidadMaximaPorProducto = -1 significa sin límite. */
+   /**
+    * Reglas que el frontend puede necesitar. cantidadMaximaPorProducto = -1
+    * significa sin límite.
+    */
    @GetMapping("/configuracion")
    public Map<String, Integer> configuracion() {
       return Map.of("cantidadMaximaPorProducto", servicio.cantidadMaximaPorProducto());
@@ -86,10 +99,9 @@ public class PedidoControlador {
 
    // ---------------------------- Cliente ----------------------------
 
-   /** PN-01: confirma el pedido. Body: {"items":[{"codigoProducto":1,"cantidad":2}]}. El cliente sale de la sesión. */
    @PostMapping
    public ResponseEntity<PedidoDto> crear(@RequestBody(required = false) CrearPedidoRequest body,
-                                          HttpServletRequest request) {
+         HttpServletRequest request) {
       UsuarioAutenticado u = sesion.exigir(request, TipoUsuario.CLIENTE);
       Pedido pedido = servicio.crear(u.codigoCliente(), body == null ? null : body.items());
       return ResponseEntity.status(HttpStatus.CREATED).body(PedidoDto.paraCliente(pedido));
@@ -98,7 +110,7 @@ public class PedidoControlador {
    /** RU-05: pedidos del cliente autenticado, del más reciente al más antiguo. */
    @GetMapping("/mis-pedidos")
    public List<PedidoDto> misPedidos(@RequestParam(value = "limite", required = false) Integer limite,
-                                     HttpServletRequest request) {
+         HttpServletRequest request) {
       UsuarioAutenticado u = sesion.exigir(request, TipoUsuario.CLIENTE);
       return servicio.listarDeCliente(u.codigoCliente(), limite).stream()
             .map(PedidoDto::paraCliente).toList();
@@ -117,11 +129,15 @@ public class PedidoControlador {
 
    // ---------------------------- Personal ----------------------------
 
-   /** RU-07: sin estado = pedidos en curso; ?estado=entregado = registro. Opcional: &limite=100 (máx. 500). */
+   /**
+    * Consulta los pedidos en cola de atención para el personal operativo (RU-07).
+    * Por defecto retorna pedidos en curso ordenados cronológicamente;
+    * opcionalmente filtra por estado específico.
+    */
    @GetMapping
    public List<PedidoDto> listar(@RequestParam(value = "estado", required = false) String estado,
-                                 @RequestParam(value = "limite", required = false) Integer limite,
-                                 HttpServletRequest request) {
+         @RequestParam(value = "limite", required = false) Integer limite,
+         HttpServletRequest request) {
       sesion.exigir(request, PERSONAL);
       return servicio.listarParaPersonal(estado, limite).stream()
             .map(PedidoDto::paraPersonal).toList();
@@ -141,21 +157,26 @@ public class PedidoControlador {
       return PedidoDto.paraPersonal(servicio.marcarListo(id, u.idTrabajador()));
    }
 
-   /** Solo comprueba el código; no cambia el estado. Body: {"codigoRetiro":"A2B3C4"} */
+   /**
+    * Solo comprueba el código; no cambia el estado. Body:
+    * {"codigoRetiro":"A2B3C4"}
+    */
    @PostMapping("/{id}/verificar-codigo")
    public Map<String, Boolean> verificarCodigo(@PathVariable("id") long id,
-                                               @RequestBody(required = false) CodigoRetiroRequest body,
-                                               HttpServletRequest request) {
+         @RequestBody(required = false) CodigoRetiroRequest body,
+         HttpServletRequest request) {
       sesion.exigir(request, TipoUsuario.TRABAJADOR);
       String codigo = body == null ? null : body.codigoRetiro();
       return Map.of("valido", servicio.verificarCodigo(id, codigo));
    }
 
-   /** Entrega el pedido: exige estado "listo" y volver a verificar el código. Body: {"codigoRetiro":"A2B3C4"} */
+   /**
+    * Entrega el pedido: exige estado "listo" y volver a verificar el código.
+    */
    @PostMapping("/{id}/entregar")
    public PedidoDto entregar(@PathVariable("id") long id,
-                             @RequestBody(required = false) CodigoRetiroRequest body,
-                             HttpServletRequest request) {
+         @RequestBody(required = false) CodigoRetiroRequest body,
+         HttpServletRequest request) {
       UsuarioAutenticado u = sesion.exigir(request, TipoUsuario.TRABAJADOR);
       String codigo = body == null ? null : body.codigoRetiro();
       return PedidoDto.paraPersonal(servicio.entregar(id, u.idTrabajador(), codigo));

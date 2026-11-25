@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.List;
 
 /**
- * Coincide con estado_pedido_enum. El orden de declaración es el único flujo
- * permitido (RN-NEG-06).
+ * Enumeración que modela los estados por los que transita un pedido en la cafetería.
+ * Refleja los valores del tipo 'estado_pedido_enum' en PostgreSQL y establece el único
+ * flujo permitido: PENDIENTE → EN_PREPARACION → LISTO → ENTREGADO (RN-NEG-06).
  */
 public enum EstadoPedido {
    PENDIENTE("pendiente"),
