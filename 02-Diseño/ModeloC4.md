@@ -62,21 +62,22 @@ El **Servidor Backend** sigue una arquitectura de **monolito modular**, donde ca
 
 | Componente | Tecnología | Responsabilidad Principal |
 | :--- | :--- | :--- |
-| **Auth** | Java, Spring Boot (Spring Security) | Gestiona la autenticación de usuarios mediante sesiones basadas en cookies, consultando credenciales y roles desde `Cliente` y `Trabajador`. |
-| **Cliente** | Java, Spring Boot | Administra la información de perfil de estudiantes y docentes, y expone la consulta de su historial de pedidos. |
+| **Auth** | Java, Spring Boot | Gestiona la autenticación de usuarios mediante sesiones basadas en cookies, consultando credenciales y roles. |
+| **Cliente** | Java, Spring Boot | Administra la información de perfil de estudiantes y docentes. |
 | **Trabajador** | Java, Spring Boot | Gestiona las cuentas del personal operativo de la cafetería (creadas por el Administrador) y sus datos asociados. |
 | **Producto** | Java, Spring Boot | Administra el catálogo del menú (alimentos y bebidas), controlando sus precios vigentes y su estado de disponibilidad. |
-| **Pedido** | Java, Spring Boot | Orquesta la creación de órdenes vinculadas a un `Cliente`, consulta disponibilidad y precios vigentes en `Producto`, captura el precio histórico unitario, genera el código único de retiro y controla la transición secuencial de estados (`Pendiente` $\rightarrow$ `En preparación` $\rightarrow$ `Listo para retirar` $\rightarrow$ `Entregado`). |
+| **Pedido** | Java, Spring Boot | Orquesta la creación de órdenes vinculadas a un `Cliente`, consulta disponibilidad y precios vigentes en `Producto`, captura el precio histórico unitario, genera el código único de retiro, controla la transición secuencial de estados (`Pendiente` $\rightarrow$ `En preparación` $\rightarrow$ `Listo para retirar` $\rightarrow$ `Entregado`) y delega el registro de auditoría en `Historial`. |
+| **Historial** | Java, Spring Boot | Registra y expone el histórico de pedidos y su trazabilidad operativa para consulta y auditoría por parte del Administrador. |
 | **Core** | Java, Spring Boot | Módulo transversal que centraliza configuraciones globales, manejo centralizado de excepciones, validaciones y utilidades compartidas por los módulos. |
 
 ### Estructura Interna en Capas por Módulo
 
-Para evitar redundancia visual en los diagramas, cada módulo de dominio (`Cliente`, `Trabajador`, `Producto`, `Pedido`) implementa internamente una separación estándar en capas:
+Para evitar redundancia visual en los diagramas, cada módulo de dominio (`Cliente`, `Trabajador`, `Producto`, `Pedido`, `Historial`) implementa internamente una separación estándar en capas:
 
-* **Capa de Controladores (`Controller`):** Expone los endpoints REST, recibe las solicitudes HTTP y valida los parámetros de entrada.
-* **Capa de Servicios (`Service`):** Contiene la lógica y reglas de negocio del dominio correspondiente, además de coordinar las consultas entre módulos (`Pedido` $\rightarrow$ `Producto` y `Pedido` $\rightarrow$ `Cliente`).
-* **Capa de Persistencia (`Repository`):** Interfaces basadas en Spring Data JPA encargadas de las operaciones de lectura y escritura contra PostgreSQL.
-* **Modelo y Transferencia de Datos (`Entity` / `Record`):** Entidades JPA mapeadas a las tablas relacionales y objetos inmutables (`Java Records` / DTOs) para el intercambio seguro de datos hacia la API.
+- **Capa de Controladores (`Controller`):** Expone los endpoints REST, recibe las solicitudes HTTP y valida los parámetros de entrada.
+- **Capa de Servicios (`Service`):** Contiene la lógica y reglas de negocio del dominio correspondiente, además de coordinar las consultas y registros entre módulos (`Pedido` $\rightarrow$ `Producto`, `Pedido` $\rightarrow$ `Cliente` y `Pedido` $\rightarrow$ `Historial`).
+- **Capa de Persistencia (`Repository`):** Interfaces basadas en Spring Data JPA encargadas de las operaciones de lectura y escritura contra PostgreSQL.
+- **Modelo y Transferencia de Datos:** Entidades JPA mapeadas a las tablas relacionales y objetos inmutables (`Java Records` / DTOs) para el intercambio seguro de datos hacia la API.
 
 ---
 ### 4.2. Componentes de la Aplicación Web
