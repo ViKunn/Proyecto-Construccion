@@ -12,6 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio de lógica de negocio responsable del proceso de autenticación de usuarios.
+ * Valida formatos, verifica credenciales contra hashes BCrypt y mitiga ataques de temporización
+ * (timing attacks) para evitar la enumeración de usuarios en el sistema.
+ */
+
 @Service
 public class AuthServicio {
 
@@ -33,8 +39,9 @@ public class AuthServicio {
    }
 
    /**
-    * Valida credenciales. Devuelve vacío ante CUALQUIER fallo (correo inexistente,
-    * contraseña incorrecta, datos inconsistentes) para no filtrar información.
+    * Realiza la validación integral de credenciales de acceso para un usuario.
+    * Devuelve vacío ante CUALQUIER fallo (correo inexistente, contraseña incorrecta, 
+    * datos inconsistentes) para no filtrar información.
     */
    public Optional<UsuarioAutenticado> autenticar(String correo, String contrasena) {
       if (correo == null || contrasena == null) {

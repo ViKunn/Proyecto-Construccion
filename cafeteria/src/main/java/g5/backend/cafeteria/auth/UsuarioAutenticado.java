@@ -21,7 +21,6 @@ public record UsuarioAutenticado(
       String nombre,
       String apellido) implements Serializable {
 
-   /** codigo_cliente; lanza excepción si el usuario no es cliente. */
    public long codigoCliente() {
       if (tipo != TipoUsuario.CLIENTE || idPerfil == null) {
          throw new IllegalStateException("El usuario autenticado no es un cliente");
@@ -29,7 +28,6 @@ public record UsuarioAutenticado(
       return idPerfil;
    }
 
-   /** id_trabajador; lanza excepción si el usuario no es trabajador. */
    public long idTrabajador() {
       if (tipo != TipoUsuario.TRABAJADOR || idPerfil == null) {
          throw new IllegalStateException("El usuario autenticado no es un trabajador");

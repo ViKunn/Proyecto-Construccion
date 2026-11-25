@@ -5,6 +5,12 @@ import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Repositorio de acceso a datos para la autenticación de usuarios.
+ * Ejecuta consultas directas sobre la base de datos mediante {@link JdbcTemplate}
+ * para recuperar credenciales, datos de perfil y roles asociados.
+ */
+
 @Repository
 public class AuthRepositorio {
 
@@ -61,13 +67,6 @@ public class AuthRepositorio {
       return filas.stream().findFirst();
    }
 
-   /**
-    * Hash BCrypt actual del usuario. Solo lo usa la capa de servicio para
-    * verificar la contraseña actual antes de cambiarla.
-    *
-    * @param idUsuario usuario.id_usuario (sale de la sesión, nunca del cliente)
-    * @return el hash, o vacío si el usuario no existe
-    */
    public Optional<String> buscarHashPorId(long idUsuario) {
       List<String> filas = jdbc.query(
             "select contrasena_hash from usuario where id_usuario = ?",
@@ -75,13 +74,6 @@ public class AuthRepositorio {
       return filas.stream().findFirst();
    }
 
-   /**
-    * Reemplaza el hash de la contraseña del usuario (cliente, trabajador o administrador).
-    *
-    * @param idUsuario usuario.id_usuario
-    * @param nuevoHash hash BCrypt ya calculado; nunca la contraseña en texto plano
-    * @return true si se actualizó una fila
-    */
    public boolean actualizarContrasena(long idUsuario, String nuevoHash) {
       return jdbc.update("update usuario set contrasena_hash = ? where id_usuario = ?",
             nuevoHash, idUsuario) == 1;

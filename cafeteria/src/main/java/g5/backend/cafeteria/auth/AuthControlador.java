@@ -12,6 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controlador REST encargado de la autenticación y gestión de sesiones de
+ * usuario.
+ * Proporciona endpoints para iniciar sesión, verificar el estado de la sesión
+ * activa, cambiar la contraseña y cerrar sesión, gestionando la identidad en
+ *  el servidor mediante cookies de sesión.
+ */
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthControlador {
@@ -22,7 +30,6 @@ public class AuthControlador {
    public record CambioContrasenaRequest(String contrasenaActual, String contrasenaNueva) {
    }
 
-   /** Lo único que ve el navegador. Los ids permanecen en la sesión del servidor. */
    public record SesionDto(TipoUsuario tipo, String nombre, String apellido, String correo) {
       static SesionDto de(UsuarioAutenticado u) {
          return new SesionDto(u.tipo(), u.nombre(), u.apellido(), u.correo());
@@ -39,7 +46,7 @@ public class AuthControlador {
 
    @PostMapping("/login")
    public ResponseEntity<?> login(@RequestBody(required = false) LoginRequest body,
-                                  HttpServletRequest request) {
+         HttpServletRequest request) {
       Optional<UsuarioAutenticado> usuario = body == null
             ? Optional.empty()
             : servicio.autenticar(body.correo(), body.contrasena());
@@ -52,7 +59,6 @@ public class AuthControlador {
       return ResponseEntity.ok(SesionDto.de(usuario.get()));
    }
 
-   /** Permite al frontend restaurar la sesión al recargar la página. */
    @GetMapping("/me")
    public ResponseEntity<?> me(HttpServletRequest request) {
       return sesion.actual(request)
@@ -67,20 +73,14 @@ public class AuthControlador {
       return ResponseEntity.noContent().build();
    }
 
-   /**
-    * HU-USU-01: el usuario autenticado (cliente, trabajador o administrador) cambia su contraseña.
-    * Body: {"contrasenaActual":"...","contrasenaNueva":"..."}. El usuario sale de la sesión.
-    * Respuestas: 204 si se cambió, 400 si los datos no son válidos o la contraseña actual es
-    * incorrecta, 401 si no hay sesión.
-    */
    @PutMapping("/contrasena")
    public ResponseEntity<Void> cambiarContrasena(@RequestBody(required = false) CambioContrasenaRequest body,
-                                                 HttpServletRequest request) {
+         HttpServletRequest request) {
       UsuarioAutenticado u = sesion.exigir(request);
       servicio.cambiarContrasena(u.idUsuario(),
             body == null ? null : body.contrasenaActual(),
             body == null ? null : body.contrasenaNueva());
-      request.changeSessionId();   // nuevo id de sesión tras cambiar credenciales
+      request.changeSessionId(); // nuevo id de sesión tras cambiar credenciales
       return ResponseEntity.noContent().build();
    }
 }
