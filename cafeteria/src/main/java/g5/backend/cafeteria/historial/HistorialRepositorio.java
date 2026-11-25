@@ -15,7 +15,10 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-/** Lecturas sobre las vistas v_historial_pedidos y v_detalle_pedidos. */
+/**
+ * Repositorio de acceso a datos para el módulo de auditoría e historial de pedidos.
+ */
+
 @Repository
 public class HistorialRepositorio {
 

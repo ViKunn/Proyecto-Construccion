@@ -9,7 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Historial de pedidos y de sus cambios de estado: solo el administrador. */
+/**
+ * Controlador REST para la consulta histórica y auditoría detallada de pedidos.
+ * Proporciona endpoints protegidos exclusivos para el administrador,
+ * permitiendo supervisar las transiciones de estado, empleados involucrados y detalles de compra.
+ */
+
 @RestController
 @RequestMapping("/api/historial-pedidos")
 public class HistorialControlador {

@@ -5,7 +5,11 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-/** Detalle completo de un pedido para el administrador (v_detalle_pedidos + v_historial_pedidos). */
+/** 
+ * Detalle completo de un pedido para el administrador. 
+ * Tiene en cuenta las vistas v_detalle_pedidos y v_historial_pedidos
+*/
+
 public record PedidoDetalleAdmin(
       long idPedido,
       OffsetDateTime fechaRegistro,
@@ -17,7 +21,7 @@ public record PedidoDetalleAdmin(
       List<Linea> items,
       List<CambioEstado> cambios) {
 
-   /** Una fila de v_detalle_pedidos (un producto del pedido). */
+   /** Una fila de la vista v_detalle_pedidos (un producto del pedido). */
    public record Linea(
          long idDetalle,
          String productoNombre,
