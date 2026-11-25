@@ -12,7 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Gestión de trabajadores: solo el administrador. */
+/**
+ * Controlador REST para la administración y supervisión del personal operativo (trabajadores).
+ * Todas las operaciones requieren autenticación activa con rol de administrador.
+ */
+
 @RestController
 @RequestMapping("/api/trabajadores")
 public class TrabajadorControlador {

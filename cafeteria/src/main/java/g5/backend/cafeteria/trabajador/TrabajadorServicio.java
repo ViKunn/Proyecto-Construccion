@@ -10,6 +10,10 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio de lógica de negocio encargado de la administración del personal operativo.
+ */
+
 @Service
 public class TrabajadorServicio {
 

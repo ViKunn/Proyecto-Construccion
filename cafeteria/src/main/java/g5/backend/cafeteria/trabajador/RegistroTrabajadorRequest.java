@@ -1,12 +1,13 @@
 package g5.backend.cafeteria.trabajador;
 
 /**
- * Cuerpo de POST /api/trabajadores. Todos los campos se validan en el servicio.
+ * Estructura de transferencia de datos (DTO) para la creación de cuentas de
+ * trabajadores.
  */
 public record RegistroTrabajadorRequest(
-      String nombre,
-      String apellido,
-      String cedula,
-      String correo,
-      String contrasena) {
+            String nombre,
+            String apellido,
+            String cedula,
+            String correo,
+            String contrasena) {
 }
