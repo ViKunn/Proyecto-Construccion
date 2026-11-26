@@ -51,11 +51,13 @@ function productosFiltrados() {
  * @returns {string} Marcado de la tarjeta del producto.
  */
 function tarjetaProducto(producto) {
-  const imagen = producto.imagenUrl || IMAGEN_POR_TIPO[producto.tipoProducto] || IMAGEN_POR_TIPO.alimento;
+  const placeholder = IMAGEN_POR_TIPO[producto.tipoProducto] || IMAGEN_POR_TIPO.alimento;
+  const imagen = producto.imagenUrl || placeholder;
   const enCarrito = estado.carrito.cantidadDe(producto.codigoProducto);
   return `
     <article class="producto-card">
-      <img class="producto-imagen" src="${escaparHtml(imagen)}" alt="${escaparHtml(producto.nombre)}" loading="lazy" />
+      <img class="producto-imagen" src="${escaparHtml(imagen)}" data-placeholder="${escaparHtml(placeholder)}"
+        alt="${escaparHtml(producto.nombre)}" loading="lazy" />
       <div class="producto-info">
         <span class="producto-tipo">${escaparHtml(TIPOS_PRODUCTO[producto.tipoProducto] || producto.tipoProducto)}</span>
         <h3>${escaparHtml(producto.nombre)}</h3>
@@ -159,6 +161,15 @@ function refrescarVista() {
 
 /** Eventos de la grilla del menú y del carrito (delegación de eventos). */
 function configurarEventosCarrito() {
+  // Si la imagen del producto no existe en el servidor, se muestra la ilustración de su tipo
+  document.getElementById("grilla-menu").addEventListener("error", (evento) => {
+    const img = evento.target;
+    if (img.tagName === "IMG" && !img.dataset.respaldo) {
+      img.dataset.respaldo = "1";
+      img.src = img.dataset.placeholder;
+    }
+  }, true);
+
   document.getElementById("grilla-menu").addEventListener("click", (evento) => {
     const boton = evento.target.closest(".btn-agregar");
     if (!boton) {
