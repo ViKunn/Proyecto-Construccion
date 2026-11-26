@@ -423,7 +423,7 @@ Todos los triggers operan a nivel de fila (`FOR EACH ROW`).
 
 **Función:** `trg_detalle_recalcular_total()` · **Regla:** `RN-NEG-03`
 
-- **Qué hace:** Tras cualquier `INSERT`, `UPDATE` o `DELETE` en `detalle_pedido`, recalcula `pedido.importe_total` como $\sum (\text{precio\_unitario} \times \text{cantidad})$ del pedido.
+- **Qué hace:** Tras cualquier `INSERT`, `UPDATE` o `DELETE` en `detalle_pedido`, recalcula `pedido.importe_total` como: Σ(precio_unitario × cantidad) del pedido.
 - **Qué evita:** Descuadres entre las líneas de detalle y el total de la cabecera.
 
 ### 5.5 `trg_pedido_before_insert`
