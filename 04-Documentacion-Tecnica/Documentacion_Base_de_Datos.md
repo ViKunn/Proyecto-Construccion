@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Gestión de Pedidos de Cafetería Universitaria  
 **Motor:** PostgreSQL (Supabase) · esquema `public`  
-**Versión:** 1.0 · **Fecha:** 25 de noviembre de 2026
+**Versión:** 1.0
 
 ---
 

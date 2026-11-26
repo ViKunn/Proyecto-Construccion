@@ -2,7 +2,6 @@
 
 **Gestión de pedidos de una cafetería universitaria**  
 *Backend Spring Boot · Release 1.0*  
-*Fecha: 22 de noviembre de 2026*
 
 Este documento describe los endpoints expuestos por los controladores `auth`, `cliente`, `producto`, `pedido`, `trabajador` e `historial`: el método HTTP, los datos que reciben (con ejemplo) y los datos que devuelven (con ejemplo).
 
