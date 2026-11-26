@@ -3,8 +3,7 @@ package g5.backend.cafeteria.producto;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Coincide con tipo_producto_enum. El valor también es la subcarpeta de la
- * imagen.
+ * Categorías de productos ofrecidas en el catálogo de la cafetería.
  */
 public enum TipoProducto {
    BEBIDA("bebida"),

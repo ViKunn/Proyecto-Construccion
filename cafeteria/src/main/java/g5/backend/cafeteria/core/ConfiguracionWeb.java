@@ -8,6 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Configuración web y de seguridad para la aplicación Spring MVC.
+ */
 @Configuration
 public class ConfiguracionWeb implements WebMvcConfigurer {
 

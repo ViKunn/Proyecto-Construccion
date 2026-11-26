@@ -2,6 +2,11 @@ package g5.backend.cafeteria.auth;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * Enumeración que define los roles y categorías de usuarios admitidos en el sistema.
+ * Modela directamente los valores del tipo enumerado 'tipo_usuario_enum' de la base de datos PostgreSQL.
+ */
+
 public enum TipoUsuario {
    CLIENTE("cliente"),
    TRABAJADOR("trabajador"),

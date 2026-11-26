@@ -7,15 +7,19 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Validaciones de pedidos (null = válido, igual que los demás validadores). */
+/**
+ * Componente de validación para las órdenes y pedidos de clientes.
+ * Aplica reglas de negocio sobre la estructura de ítems, cantidades permitidas,
+ * límites técnicos para evitar desbordamientos numéricos y validación del formato del código de retiro.
+ */
+
 @Component
 public class ValidadorPedido {
 
    /** Tope de líneas por pedido (protección contra abuso). */
    public static final int MAX_LINEAS = 30;
    /**
-    * Tope técnico por producto: evita desbordar numeric(10,2). No es la regla de
-    * negocio configurable.
+    * Tope técnico por producto: evita desbordar numeric(10,2).
     */
    public static final int MAX_CANTIDAD_TECNICA = 9999;
 

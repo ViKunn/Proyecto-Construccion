@@ -6,7 +6,12 @@ import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/** Publica el directorio de imágenes en GET /imagenes/** (p. ej. /imagenes/bebida/cafe-americano-1a2b3c4d.png). */
+/**
+ * Configuración de Spring MVC para la exposición y distribución de imágenes estáticas.
+ * Mapea la ruta pública {@code /imagenes/**} hacia el directorio físico gestionado por {@link AlmacenImagenes},
+ * configurando políticas de caché HTTP prolongadas para optimizar el rendimiento.
+ */
+
 @Configuration
 public class ConfiguracionImagenes implements WebMvcConfigurer {
 

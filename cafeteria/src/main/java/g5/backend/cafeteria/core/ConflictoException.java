@@ -2,7 +2,12 @@ package g5.backend.cafeteria.core;
 
 import java.util.Map;
 
-/** Conflicto con datos existentes (duplicados): se traduce a HTTP 409. */
+/**
+ * Excepción lanzada cuando ocurre un conflicto con el estado actual de los
+ * datos, tales como duplicados o carreras concurrentes.
+ * Es capturada por el manejador global para traducirse en una respuesta HTTP
+ * 409 (CONFLICT).
+ */
 public class ConflictoException extends RuntimeException {
 
    private final transient Map<String, String> errores;

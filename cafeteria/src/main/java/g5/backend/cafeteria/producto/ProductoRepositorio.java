@@ -12,6 +12,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Repositorio de acceso a datos para la administración del catálogo de productos y menú.
+ */
+
 @Repository
 public class ProductoRepositorio {
 

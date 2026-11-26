@@ -5,9 +5,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
- * Modelo interno (incluye el código de retiro). Los controladores deciden qué
- * parte se expone.
+ * Modelo de dominio interno que representa un pedido en la cafetería.
  */
+ 
 public record Pedido(
       long idPedido,
       long codigoCliente,

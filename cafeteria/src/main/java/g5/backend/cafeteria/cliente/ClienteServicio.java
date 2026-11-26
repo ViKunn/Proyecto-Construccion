@@ -9,6 +9,12 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio de lógica de negocio responsable del registro y validación de clientes.
+ * Aplica reglas de formato, asegura la unicidad de credenciales e identidad nacional,
+ * y delega la persistencia transaccional tras generar el hash seguro de la contraseña.
+ */
+
 @Service
 public class ClienteServicio {
 
@@ -26,6 +32,11 @@ public class ClienteServicio {
       this.encoder = encoder;
    }
 
+   /**
+    * Registro de un nuevo cliente en el sistema 
+    * @throws ValidacionException Si los datos suministrados no superan las validaciones de formato o están incompletos.
+    * @throws ConflictoException Si el correo electrónico o la cédula ya pertenecen a otra cuenta existente.
+    */
    public Cliente registrar(RegistroClienteRequest req) {
       if (req == null) {
          throw new ValidacionException(Map.of("cuerpo", "Debe enviar los datos del cliente"));

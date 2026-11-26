@@ -9,6 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+/**
+ * Componente de inicialización que valida la conectividad con la base de datos
+ * relacional durante el arranque.
+ */
+
 @Component
 public class ConexionBD implements CommandLineRunner {
 
@@ -41,8 +46,8 @@ public class ConexionBD implements CommandLineRunner {
       }
    }
 
-   @Override 
-   public void run (String ... args) {
+   @Override
+   public void run(String... args) {
       verificarConexion();
    }
 }

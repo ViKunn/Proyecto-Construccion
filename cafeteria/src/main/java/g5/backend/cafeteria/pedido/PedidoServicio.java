@@ -15,13 +15,16 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio de lógica de negocio que orquesta la creación, consulta y transición
+ * de estados de pedidos.
+ */
 @Service
 public class PedidoServicio {
 
    private static final int LIMITE_POR_DEFECTO = 100;
    private static final int LIMITE_MAXIMO = 500;
-   private static final String MSG_ORDEN =
-         "Los pedidos solo avanzan en orden: pendiente → en_preparacion → listo → entregado";
+   private static final String MSG_ORDEN = "Los pedidos solo avanzan en orden: pendiente → en_preparacion → listo → entregado";
 
    private final PedidoRepositorio repositorio;
    private final ValidadorPedido validador;
@@ -35,13 +38,17 @@ public class PedidoServicio {
    // Creación (PN-01)
    // ------------------------------------------------------------------
 
-   /** Límite de unidades por producto (-1 = sin límite). El frontend puede usarlo para limitar el selector. */
+   /**
+    * Límite de unidades por producto (-1 = sin límite). El frontend puede usarlo
+    * para limitar el selector.
+    */
    public int cantidadMaximaPorProducto() {
       return validador.limiteCantidad();
    }
 
    /**
-    * Crea el pedido del cliente. El servidor recalcula todo: precios y total salen de la base de datos,
+    * Crea el pedido del cliente. El servidor recalcula todo: precios y total salen
+    * de la base de datos,
     * nunca del frontend.
     */
    public Pedido crear(long codigoCliente, List<ItemPedido> items) {
@@ -104,7 +111,10 @@ public class PedidoServicio {
       return pedido.conDetalles(detalles.getOrDefault(idPedido, List.of()));
    }
 
-   /** Un cliente solo puede ver sus propios pedidos; para los ajenos responde como si no existieran. */
+   /**
+    * Un cliente solo puede ver sus propios pedidos; para los ajenos responde como
+    * si no existieran.
+    */
    public Pedido obtenerDeCliente(long idPedido, long codigoCliente) {
       Pedido pedido = obtenerCompleto(idPedido);
       if (pedido.codigoCliente() != codigoCliente) {
@@ -118,7 +128,8 @@ public class PedidoServicio {
    }
 
    /**
-    * Cola del personal. Sin estado: pedidos en curso (pendiente, en_preparacion, listo), los más antiguos primero.
+    * Cola del personal. Sin estado: pedidos en curso (pendiente, en_preparacion,
+    * listo), los más antiguos primero.
     * Con estado=entregado: registro histórico, los más recientes primero.
     */
    public List<Pedido> listarParaPersonal(String estadoTexto, Integer limite) {
@@ -148,14 +159,20 @@ public class PedidoServicio {
       return cambiarEstado(idPedido, idTrabajador, EstadoPedido.EN_PREPARACION, EstadoPedido.LISTO);
    }
 
-   /** Función 1: verifica que el código presentado coincida con el del pedido. No modifica nada. */
+   /**
+    * Función 1: verifica que el código presentado coincida con el del pedido. No
+    * modifica nada.
+    */
    public boolean verificarCodigo(long idPedido, String codigoIngresado) {
       Pedido pedido = repositorio.buscarPorId(idPedido)
             .orElseThrow(() -> new NoEncontradoException("Pedido no encontrado"));
       return coincide(pedido, codigoIngresado);
    }
 
-   /** Función 2: entrega el pedido. Exige estado "listo" (RN-NEG-07) y verifica el código antes de cambiar el estado. */
+   /**
+    * Función 2: entrega el pedido. Exige estado "listo" (RN-NEG-07) y verifica el
+    * código antes de cambiar el estado.
+    */
    public Pedido entregar(long idPedido, long idTrabajador, String codigoIngresado) {
       Pedido pedido = repositorio.buscarPorId(idPedido)
             .orElseThrow(() -> new NoEncontradoException("Pedido no encontrado"));
@@ -190,7 +207,8 @@ public class PedidoServicio {
       } catch (DuplicateKeyException e) {
          throw conflictoPorConcurrencia();
       } catch (DataAccessException e) {
-         // Otro trabajador cambió el estado al mismo tiempo: el trigger rechaza la transición
+         // Otro trabajador cambió el estado al mismo tiempo: el trigger rechaza la
+         // transición
          if (mensajeRaiz(e).contains("Transición no permitida")) {
             throw conflictoPorConcurrencia();
          }
@@ -204,7 +222,10 @@ public class PedidoServicio {
             "El estado del pedido ya fue modificado por otro usuario. Actualiza la lista. " + MSG_ORDEN);
    }
 
-   /** Comparación en tiempo constante, ignorando mayúsculas/minúsculas y espacios alrededor. */
+   /**
+    * Comparación en tiempo constante, ignorando mayúsculas/minúsculas y espacios
+    * alrededor.
+    */
    private boolean coincide(Pedido pedido, String codigoIngresado) {
       String ingresado = validador.normalizarCodigoRetiro(codigoIngresado);
       if (!validador.formatoCodigoRetiroValido(ingresado)) {

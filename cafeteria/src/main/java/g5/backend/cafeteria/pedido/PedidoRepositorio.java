@@ -15,6 +15,9 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Repositorio de acceso a datos para la persistencia y ciclo de vida de los pedidos.
+ */
 @Repository
 public class PedidoRepositorio {
 
@@ -48,6 +51,7 @@ public class PedidoRepositorio {
       // ------------------------------------------------------------------
 
       /**
+       * Invoca la función PL/pgSQL 'crear_pedido' para insertar la cabecera y detalles en una sola transacción.
        * Llama a crear_pedido(): inserta pedido + detalles en una sola transacción.
        * Los triggers de la BD
        * congelan el precio (RN-NEG-04), calculan el total (RN-NEG-03), generan el

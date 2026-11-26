@@ -2,7 +2,13 @@ package g5.backend.cafeteria.core;
 
 import java.util.Map;
 
-/** Datos inválidos: se traduce a HTTP 400 con el detalle por campo. */
+/**
+ * Excepción lanzada cuando los datos suministrados por el cliente no satisfacen
+ * las reglas de validación o formato.
+ * Contiene un mapa asociativo con los errores específicos por campo y se
+ * traduce a un código HTTP 400 (BAD REQUEST).
+ */
+
 public class ValidacionException extends RuntimeException {
 
    private final transient Map<String, String> errores;

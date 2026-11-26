@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controlador REST que expone las operaciones públicas asociadas a los clientes.
+ * Proporciona el punto de entrada para el registro de nuevos usuarios en la plataforma.
+ */
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteControlador {

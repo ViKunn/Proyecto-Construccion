@@ -4,6 +4,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Repositorio de acceso a datos para la gestión y persistencia de clientes.
+ * Proporciona métodos de verificación de unicidad y operaciones transaccionales
+ * sobre las tablas 'usuario' y 'cliente' mediante {@link JdbcTemplate}.
+ */
+
 @Repository
 public class ClienteRepositorio {
 
@@ -26,8 +32,8 @@ public class ClienteRepositorio {
    }
 
    /**
-    * Crea usuario + cliente en una sola transacción (si falla algo, no queda nada
-    * a medias).
+    * Inserta de forma atómica y transaccional una nueva cuenta de usuario y su correspondiente perfil de cliente.
+    * Si falla algo, toda la operación se deshace
     */
    @Transactional
    public Cliente insertar(String correo, String contrasenaHash, String nombre,

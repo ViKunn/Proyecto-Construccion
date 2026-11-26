@@ -9,12 +9,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Acceso a la identidad del usuario autenticado desde cualquier controlador.
- * Los ids NUNCA se reciben del cliente: siempre salen de aquí.
- *
- * Uso en otros controladores:
- *   UsuarioAutenticado u = sesionUsuario.exigir(request, TipoUsuario.CLIENTE);
- *   long codigoCliente = u.codigoCliente();
+ * Componente transversal para la gestión del estado y ciclo de vida de la sesión HTTP.
+ * Centraliza el acceso seguro a la identidad del usuario autenticado desde los controladores,
+ * garantizando que los identificadores de cliente y personal nunca provengan de datos manipulables por el cliente.
+ * Además, previene ataques de fijación de sesión (session fixation) y aplica control de acceso por roles.
  */
 @Component
 public class SesionUsuario {
@@ -45,7 +43,10 @@ public class SesionUsuario {
       return o instanceof UsuarioAutenticado u ? Optional.of(u) : Optional.empty();
    }
 
-   /** 401 si no hay sesión; 403 si el tipo no está permitido (sin tipos = cualquiera autenticado). */
+   /**
+    * Exige la existencia de una sesión autenticada y verifica que el rol del usuario figure entre los permitidos.
+    * @throws ResponseStatusException con estado 401 (UNAUTHORIZED) si no hay sesión, o 403 (FORBIDDEN) si el tipo de usuario no está autorizado.
+    */
    public UsuarioAutenticado exigir(HttpServletRequest request, TipoUsuario... permitidos) {
       UsuarioAutenticado u = actual(request)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sesión no iniciada"));

@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio de lógica de negocio para la auditoría y consulta del historial de pedidos.
+ * Implementa la lógica de paginación asegurando que los eventos cronológicos de cada pedido
+ * permanezcan íntegros sin fragmentarse entre páginas consecutivas.
+ */
+
 @Service
 public class HistorialServicio {
 

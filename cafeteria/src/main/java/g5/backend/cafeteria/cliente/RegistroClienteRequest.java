@@ -1,8 +1,7 @@
 package g5.backend.cafeteria.cliente;
 
 /**
- * Cuerpo de POST /api/clientes/registro. Todos los campos se validan en el
- * servicio.
+ * DTO para la solicitud de registro de nuevos clientes.
  */
 public record RegistroClienteRequest(
       String nombre,

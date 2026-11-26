@@ -7,8 +7,9 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 /**
- * Validaciones de los datos de un producto (null = válido, igual que
- * ValidadorDatos).
+ * Componente de validación y conversión de atributos para el catálogo de productos.
+ * Comprueba las restricciones sintácticas de nombres, precisión y rango de precios monetarios,
+ * y correspondencia de categorías de producto.
  */
 @Component
 public class ValidadorProducto {

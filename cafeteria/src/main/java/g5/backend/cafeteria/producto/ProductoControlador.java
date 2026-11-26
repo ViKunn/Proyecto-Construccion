@@ -19,16 +19,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Controlador REST para el catálogo de productos y la administración del menú.
+ * Ofrece rutas para la consulta del menú para clientes (RU-01) y rutas protegidas
+ * para la creación, actualización y gestión de imágenes por parte del personal (RU-06).
+ */
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoControlador {
 
-   private static final TipoUsuario[] PERSONAL = { TipoUsuario.TRABAJADOR, TipoUsuario.ADMINISTRADOR };
+   private static final TipoUsuario[] PERSONAL = { TipoUsuario.TRABAJADOR };
 
-   /**
-    * Vista del producto para el frontend. imagenUrl es relativa al servidor (ej.
-    * /imagenes/bebida/x.png).
-    */
    public record ProductoDto(long codigoProducto, String nombre, BigDecimal precio,
          TipoProducto tipoProducto, boolean disponible, String imagenUrl) {
       static ProductoDto de(Producto p) {
@@ -61,8 +62,7 @@ public class ProductoControlador {
       return servicio.listarMenu().stream().map(ProductoDto::de).toList();
    }
 
-   // ---------------------------- Personal / administrador
-   // ----------------------------
+   // ---------------------------- Personal / administrador ----------------------------
 
    /**
     * Catálogo completo. Filtros opcionales:
@@ -83,10 +83,6 @@ public class ProductoControlador {
       return ProductoDto.de(servicio.obtener(codigo));
    }
 
-   /**
-    * RU-06: alta de producto. multipart/form-data: nombre, precio, tipo y
-    * (opcional) imagen.
-    */
    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
    public ResponseEntity<ProductoDto> crear(
          @RequestParam(value = "nombre", required = false) String nombre,

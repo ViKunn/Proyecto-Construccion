@@ -18,6 +18,10 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Servicio de lógica de negocio responsable del catálogo de productos y la gestión del menú.
+ */
+
 @Service
 public class ProductoServicio {
 

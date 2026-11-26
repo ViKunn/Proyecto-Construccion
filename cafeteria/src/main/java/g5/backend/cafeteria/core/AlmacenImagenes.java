@@ -16,11 +16,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Guarda imágenes en disco bajo un directorio base, en una subcarpeta (p. ej. "bebida").
- * - El nombre del archivo lo genera el servidor (nunca se usa el nombre enviado por el cliente).
- * - El formato se verifica por los bytes iniciales, no por la extensión ni el Content-Type.
- * - La ruta devuelta es relativa y cumple ck_producto_ruta_imagen: "bebida/cafe-americano-1a2b3c4d.png"
+ * Componente encargado del almacenamiento, validación y gestión de imágenes de productos en disco.
+ * Implementa medidas de seguridad como nombres generados aleatoriamente por el servidor mediante slugs y UUID,
+ * detección de formatos reales a través de números mágicos (magic bytes) en lugar de extensiones arbitrarias,
+ * y restricción de rutas para evitar ataques de salto de directorio (directory traversal).
  */
+
 @Component
 public class AlmacenImagenes {
 

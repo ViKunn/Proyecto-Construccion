@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Validaciones y normalización de datos de personas, reutilizables por cualquier módulo
- * (cliente, trabajador, ...). Cada método "errorXxx" devuelve el mensaje de error,
- * o null si el valor es válido, para poder acumular todos los errores de un formulario.
+ * Componente centralizado para la normalización y validación de datos personales y credenciales.
+ * Proporciona reglas estrictas para nombres, correos institucionales, números telefónicos móviles,
+ * validación algorítmica de cédula ecuatoriana (módulo 10) y políticas de complejidad de contraseñas.
  */
 @Component
 public class ValidadorDatos {
@@ -101,7 +101,6 @@ public class ValidadorDatos {
       return null;
    }
 
-   /** Cédula ecuatoriana de persona natural: provincia, tercer dígito y verificador (módulo 10). */
    public String errorCedula(String valor) {
       if (valor.isEmpty()) {
          return "La cédula es obligatoria";
