@@ -258,7 +258,6 @@ async function mostrarDetalleHistorial(idPedido) {
 
     document.getElementById("modal-hist-contenido").innerHTML = `
       <p><strong>Cliente:</strong> ${escaparHtml(detalle.clienteNombre)} ${escaparHtml(detalle.clienteApellido)} (${escaparHtml(detalle.clienteCelular)})</p>
-      <p><strong>Código de retiro:</strong> <code>${escaparHtml(detalle.codigoRetiro)}</code></p>
       <p><strong>Fecha de registro:</strong> ${escaparHtml(formatearFecha(detalle.fechaRegistro))}</p>
       <p><strong>Estado actual:</strong> ${crearBadgeEstado(detalle.estadoActual)}</p>
       <p><strong>Importe total:</strong> <strong>${formatearMoneda(detalle.importeTotal)}</strong></p>
