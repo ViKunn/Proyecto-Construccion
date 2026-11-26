@@ -100,41 +100,62 @@ Se comunica con la API REST bajo `/api` utilizando la cookie de sesión `HttpOnl
 
 ### 2.1 Descripción general
 
-Interfaz operativa destinada al personal de cafetería para la gestión de la cola de pedidos en curso, actualización de estados de preparación, verificación de códigos de retiro en mostrador y administración del menú diario. Se aloja bajo `src/main/resources/static/admin/` compartiendo arquitectura modular en JavaScript puro (`ES Modules`) y autenticación mediante cookie `HttpOnly` (`CAFETERIA_SESION`).
+Interfaz operativa destinada al personal de cafetería (`tipo_usuario = trabajador`) para atender la cola de pedidos anticipados, registrar los avances de preparación, validar el código de retiro en mostrador y administrar la carta de productos del menú diario. Está construida con HTML5, CSS3 y JavaScript modular (`ES Modules`, sin frameworks) y se sirve desde `src/main/resources/static/admin/` por el mismo backend Spring Boot.
+
+Todas las peticiones se envían bajo `/api` con `credentials: "include"` utilizando la cookie de sesión `HttpOnly` `CAFETERIA_SESION`. El identificador `id_trabajador` nunca viaja desde el navegador: el servidor lo obtiene de la sesión activa al registrar cada cambio en `historial_estado_pedido`.
 
 ### 2.2 Páginas (HTML)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con las vistas HTML correspondientes al flujo del trabajador.* |
+| `admin/index.html` | Pantalla de acceso compartida para personal de cafetería y administrador. Presenta un diseño dividido con ilustración 2D del mostrador y formulario de inicio de sesión (`correo` y `contraseña`), redirigiendo automáticamente según el rol autenticado (`HU-USU-02`). |
+| `admin/panel-trabajador.html` | Panel operativo del personal de cafetería. Incluye la barra superior con botón **Cambiar contraseña** (`HU-USU-01`) y **Cerrar sesión**, un banner visual y tres pestañas principales: **Panel de Pedidos** (`HU-PER-04` a `HU-PER-06`), **Validar Código de Retiro** (`HU-PER-07`) y **Gestión del Menú** en formato de carta visual (`HU-PER-01` a `HU-PER-03`), además de los modales de detalle de pedido, edición de producto/imagen y cambio de contraseña. |
 
 ### 2.3 Controladores de página (`js/pages`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con los controladores en `admin/js/pages/` asociados al trabajador.* |
+| `admin/js/pages/login.js` | Controla `admin/index.html`: al cargar verifica si existe una sesión activa mediante `GET /api/auth/me` para redirigir directo al panel correspondiente; valida el formulario de ingreso, invoca `iniciarSesion()` y redirige a `panel-trabajador.html` o `panel-administrador.html` según `sesion.tipo`. |
+| `admin/js/pages/trabajador.js` | Controla `admin/panel-trabajador.html`: exige rol `trabajador`, carga pedidos en curso y entregados con contadores y refresco automático cada 15 segundos, muestra el modal de detalle de cada pedido, ejecuta las transiciones lineales (*Pendiente* → *En preparación* → *Listo*), gestiona la verificación y entrega por código de retiro (`verificar-codigo` y `entregar`), y administra la carta visual del menú (registro con imagen, filtros, edición, reemplazo de imagen, interruptor de disponibilidad y armado de menú en lote). |
 
 ### 2.4 Servicios y comunicación con la API (`js/services`, `js/api`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con los servicios en `admin/js/api/` y `admin/js/services/`.* |
+| `admin/js/api/httpClient.js` | Cliente HTTP centralizado sobre `fetch()`. Envía siempre `credentials: "include"`, soporta tanto cuerpos JSON como `FormData` (`multipart/form-data` para imágenes de productos) y traduce el formato unificado de errores del backend (`{"mensaje", "errores"}`) y códigos HTTP (`400`, `401`, `403`, `404`, `409`, `413`). |
+| `admin/js/services/authService.js` | Operaciones de sesión y cuenta: `iniciarSesion` (`POST /api/auth/login`, bloqueando cuentas de `cliente`), `obtenerSesionActual` (`GET /api/auth/me`), `requerirRol` (protección de pantallas), `cerrarSesion` (`POST /api/auth/logout`) y `cambiarContrasena` (`PUT /api/auth/contrasena`). |
+| `admin/js/services/pedidoService.js` | Operaciones sobre la cola de pedidos y entrega: `listarPedidos`, `listarTodosLosPedidos` (`GET /api/pedidos`), `obtenerDetallePedido` (`GET /api/pedidos/{id}`), `iniciarPreparacion` (`POST /api/pedidos/{id}/iniciar-preparacion`), `marcarPedidoListo` (`POST /api/pedidos/{id}/marcar-listo`), `verificarCodigoRetiro` (`POST /api/pedidos/{id}/verificar-codigo`) y `entregarPedido` (`POST /api/pedidos/{id}/entregar`). |
+| `admin/js/services/productoService.js` | Operaciones de mantenimiento del menú: `listarProductos` (`GET /api/productos`), `crearProducto` (`POST /api/productos` en `multipart/form-data`), `actualizarProducto` (`PATCH /api/productos/{codigo}`), `reemplazarImagenProducto` (`PUT /api/productos/{codigo}/imagen`) y `armarMenu` (`PUT /api/productos/menu`). |
 
 ### 2.5 Utilidades y configuración (`js/utils`, `js/config.js`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con las utilidades y configuración en `admin/js/utils/` y `admin/js/config.js`.* |
+| `admin/js/config.js` | Constantes del portal administrativo: `API_BASE_URL` (`/api`), intervalo de refresco automático (`15000 ms`), límite de tamaño de imagen (`2 MB`), roles (`ROLES`), estados de pedido (`ESTADOS_PEDIDO` y `ETIQUETAS_ESTADO`) y tipos de producto (`TIPOS_PRODUCTO`). |
+| `admin/js/utils/cambioContrasenaModal.js` | Controlador reutilizable del modal **Cambiar contraseña** (`HU-USU-01`), compartido entre `panel-trabajador.html` y `panel-administrador.html` para validar campos, invocar `PUT /api/auth/contrasena`, mostrar errores de campo y gestionar sesiones expiradas (`401`). |
+| `admin/js/utils/ui.js` | Utilidades visuales compartidas: escape de texto HTML contra XSS (`escaparHtml`), formato monetario USD (`formatearMoneda`), formato local de fechas ISO (`formatearFecha`), generación de badges de estado (`crearBadgeEstado`) y notificaciones emergentes (`mostrarToast`). |
+| `admin/js/utils/validators.js` | Validaciones en cliente alineadas con el Anexo A de la API: formato de correo en tiempo lineal, nombres/apellidos, cédula ecuatoriana (módulo 10), datos e imágenes de productos (`JPG`/`PNG`/`WEBP` ≤ 2 MB), formato de código de retiro de 6 caracteres y política de contraseñas (mín. 8 caracteres, letra, número y máx. 72 bytes). |
 
-### 2.6 Estilos (`css`)
+### 2.6 Estilos y recursos visuales (`css`, `img`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con las hojas de estilo en `admin/css/`.* |
+| `admin/css/styles.css` | Hoja de estilos unificada con estética de cafetería (paleta espresso, caramelo y crema tibia; tipografías *Playfair Display* y *Plus Jakarta Sans*). Define la barra superior fija, el login dividido, el banner de bienvenida, las pestañas, los contadores de estado, las tablas, la caja de retiro, la carta visual de productos (`.menu-grid` y `.menu-card`), el interruptor deslizante de disponibilidad, los modales con fondo difuminado, notificaciones y la clase accesible `.sr-only`. |
+| `admin/img/cafe-pattern.svg` | Patrón 2D sutil (tazas, granos de café y medialunas) usado como textura de fondo en todo el portal. |
+| `admin/img/hero-cafeteria.svg` | Ilustración 2D del mostrador de cafetería usada en la pantalla de acceso y en los banners superiores. |
+| `admin/img/placeholder-bebida.svg` | Ilustración 2D de bebida mostrada en las tarjetas del menú cuando una bebida no tiene imagen cargada. |
+| `admin/img/placeholder-alimento.svg` | Ilustración 2D de alimento mostrada en las tarjetas del menú cuando un alimento no tiene imagen cargada. |
 
 ### 2.7 Flujo general
 
-*Por completar con el flujo operativo del trabajador (inicio de sesión, gestión de cola de pedidos, cambio de estados, verificación de código de retiro y entrega en mostrador).*
+1. El trabajador inicia sesión en `admin/index.html` y el sistema lo redirige a `admin/panel-trabajador.html`.
+2. En **Panel de Pedidos**, consulta los pedidos en estado `pendiente` (y demás estados con contadores en vivo), revisa su detalle de productos e inicia la preparación (`pendiente` → `en_preparacion`).
+3. Al finalizar la preparación, marca el pedido como `listo` (`en_preparacion` → `listo`).
+4. En **Validar Código de Retiro**, selecciona el pedido listo, ingresa el código de 6 caracteres que presenta el cliente, lo comprueba (`verificar-codigo`) y confirma la entrega (`listo` → `entregado`).
+5. En **Gestión del Menú**, registra nuevos productos con imagen opcional, edita nombre/precio/foto, activa o pausa disponibilidad con el interruptor de cada tarjeta o arma el menú diario en lote.
+6. Desde la barra superior puede actualizar su contraseña en cualquier momento (`HU-USU-01`) o cerrar sesión.
+
+> Por seguridad (`RN-NEG-07`), el servidor nunca envía `codigoRetiro` al personal en la cola de pedidos y vuelve a validar tanto el código como el estado `listo` al confirmar la entrega.
 
 ---
 
@@ -142,38 +163,53 @@ Interfaz operativa destinada al personal de cafetería para la gestión de la co
 
 ### 3.1 Descripción general
 
-Interfaz de supervisión y administración del sistema destinada al rol `administrador` para el registro de personal operativo (trabajadores), consulta del catálogo completo y auditoría del historial de pedidos. Se aloja bajo `src/main/resources/static/admin/` utilizando la misma arquitectura modular en JavaScript (`ES Modules`) y sesión autenticada en servidor (`CAFETERIA_SESION`).
+Interfaz de supervisión y administración destinada al rol `administrador` para crear y consultar cuentas de trabajadores, auditar el historial paginado de cambios de estado de todos los pedidos e inspeccionar su detalle completo (incluyendo cliente, código de retiro, ítems y trazabilidad por trabajador). Se aloja bajo `src/main/resources/static/admin/`, compartiendo la misma arquitectura modular en `ES Modules`, hoja de estilos y autenticación mediante cookie `HttpOnly` (`CAFETERIA_SESION`).
 
 ### 3.2 Páginas (HTML)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con las vistas HTML correspondientes al flujo del administrador.* |
+| `admin/index.html` | Pantalla de acceso compartida. Al autenticarse una cuenta con `tipo = administrador`, redirige automáticamente a `admin/panel-administrador.html`. |
+| `admin/panel-administrador.html` | Panel principal del administrador. Contiene la barra superior con **Cambiar contraseña** (`HU-USU-01`) y **Cerrar sesión**, el banner visual y dos pestañas: **Gestión de Trabajadores** (formulario de registro y tabla con búsqueda) e **Historial de Pedidos** (tabla paginada con filtro por `idPedido` y línea de tiempo), además de los modales de detalle completo del pedido y cambio de contraseña. |
 
 ### 3.3 Controladores de página (`js/pages`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con los controladores en `admin/js/pages/` asociados al administrador.* |
+| `admin/js/pages/login.js` | Controla `admin/index.html`, valida las credenciales contra `/api/auth/login` y dirige a los administradores hacia `panel-administrador.html`. |
+| `admin/js/pages/administrador.js` | Controla `admin/panel-administrador.html`: exige rol `administrador`, carga y filtra la lista de trabajadores, valida y registra nuevas cuentas de trabajador (con cédula ecuatoriana módulo 10 y política de contraseña), gestiona la paginación y filtro del historial de pedidos, y abre el modal con el detalle completo e historial de auditoría de cada pedido seleccionado. |
 
 ### 3.4 Servicios y comunicación con la API (`js/services`, `js/api`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con los servicios en `admin/js/api/` y `admin/js/services/`.* |
+| `admin/js/api/httpClient.js` | Cliente HTTP único basado en `fetch()` con `credentials: "include"` y normalización de errores del backend. |
+| `admin/js/services/authService.js` | Gestiona inicio/cierre de sesión, verificación de rol `administrador` (`GET /api/auth/me`) y cambio de contraseña (`PUT /api/auth/contrasena`). |
+| `admin/js/services/trabajadorService.js` | Operaciones sobre cuentas de personal: `listarTrabajadores` (`GET /api/trabajadores`) y `crearTrabajador` (`POST /api/trabajadores`). |
+| `admin/js/services/historialService.js` | Operaciones de auditoría: `listarHistorialPedidos` (`GET /api/historial-pedidos?pagina=&limite=&idPedido=`) y `obtenerDetalleHistorialPedido` (`GET /api/historial-pedidos/{idPedido}`). |
 
 ### 3.5 Utilidades y configuración (`js/utils`, `js/config.js`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con las utilidades y configuración en `admin/js/utils/` y `admin/js/config.js`.* |
+| `admin/js/config.js` | Define la ruta base `/api`, roles (`ROLES.ADMINISTRADOR`) y constantes/etiquetas de los estados de pedido mostrados en el historial. |
+| `admin/js/utils/cambioContrasenaModal.js` | Controla el modal compartido **Cambiar contraseña** accesible desde la barra superior del panel del administrador. |
+| `admin/js/utils/ui.js` | Provee escape contra XSS (`escaparHtml`), formato de importes y fechas, badges de estado para la línea de tiempo y notificaciones *toast*. |
+| `admin/js/utils/validators.js` | Valida el formulario de alta de trabajadores (`validarNuevoTrabajador`: nombres, cédula ecuatoriana válida, correo y contraseña segura) y el cambio de contraseña (`validarCambioContrasena`). |
 
-### 3.6 Estilos (`css`)
+### 3.6 Estilos y recursos visuales (`css`, `img`)
 
 | Archivo | Descripción |
 |---|---|
-| *Pendiente* | *Por completar con las hojas de estilo en `admin/css/`.* |
+| `admin/css/styles.css` | Hoja de estilos compartida con todo el módulo administrativo: barra superior espresso, banner 2D, pestañas, formularios en cuadrícula, tablas, barra de paginación (`.pagination-bar`), lista de línea de tiempo (`.timeline-list`), modales y etiquetas accesibles `.sr-only`. |
+| `admin/img/cafe-pattern.svg` y `admin/img/hero-cafeteria.svg` | Recursos gráficos 2D locales usados como fondo sutil y banner del panel de administración. |
 
 ### 3.7 Flujo general
 
-*Por completar con el flujo administrativo (inicio de sesión, gestión de cuentas de trabajadores, administración del catálogo de productos y auditoría del historial de pedidos).*
+1. El administrador inicia sesión en `admin/index.html` y accede a `admin/panel-administrador.html`.
+2. En **Gestión de Trabajadores**, consulta la lista del personal registrado (con búsqueda por nombre, apellido o cédula) y crea nuevas cuentas de trabajador definiendo su contraseña inicial.
+3. En **Historial de Pedidos**, recorre los pedidos de forma paginada o busca un pedido por su `idPedido`, observando la línea de tiempo de cambios de estado (`pendiente` sin trabajador, y los cambios posteriores con el nombre del trabajador responsable).
+4. Al pulsar **Ver detalle** sobre un pedido, inspecciona la información completa: datos y celular del cliente, código de retiro, productos con precios congelados/subtotales y auditoría completa de estados.
+5. Desde la barra superior puede cambiar la contraseña de su cuenta (`HU-USU-01`) o cerrar sesión.
+
+> De acuerdo con las reglas del backend, el administrador supervisa personal e historial, pero no avanza estados operativos de pedidos porque no posee un `id_trabajador` asociado.
