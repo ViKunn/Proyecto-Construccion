@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis pedidos — Cafetería Universitaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/cliente.css" />
+</head>
+
+<body>
+  <header class="barra-superior">
+    <a href="menu.html" class="marca"><span aria-hidden="true">☕</span> Cafetería Universitaria</a>
+    <nav class="nav-principal" aria-label="Secciones">
+      <a href="menu.html" class="nav-link">Menú</a>
+      <a href="pedidos.html" class="nav-link activo" aria-current="page">Mis pedidos</a>
+    </nav>
+    <div class="usuario">
+      <span id="saludo-cliente" class="saludo"></span>
+      <button type="button" id="btn-cambiar-contrasena" class="btn btn-texto">Cambiar contraseña</button>
+      <button type="button" id="btn-salir" class="btn btn-secundario">Salir</button>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <div class="seccion-cabecera">
+      <div>
+        <h1>Mis pedidos</h1>
+        <p class="texto-suave">El estado se actualiza automáticamente. <span id="ultima-actualizacion"></span></p>
+      </div>
+      <div class="herramientas-menu">
+        <div class="filtros" role="group" aria-label="Filtrar pedidos">
+          <button type="button" class="filtro-pedidos" data-filtro="activos" aria-pressed="true">En curso</button>
+          <button type="button" class="filtro-pedidos" data-filtro="todos" aria-pressed="false">Todos</button>
+        </div>
+        <button type="button" id="btn-actualizar" class="btn btn-secundario">Actualizar</button>
+      </div>
+    </div>
+    <div id="lista-pedidos" class="lista-pedidos" aria-live="polite">
+      <p class="estado-vacio">Cargando tus pedidos...</p>
+    </div>
+  </main>
+
+  <!-- Cambio de contraseña (HU-USU-01) -->
+  <dialog id="dialogo-contrasena" class="dialogo" aria-labelledby="titulo-contrasena">
+    <form id="form-contrasena" class="formulario" novalidate>
+      <h2 id="titulo-contrasena">Cambiar contraseña</h2>
+      <div class="campo">
+        <label for="contrasena-actual">Contraseña actual</label>
+        <input type="password" id="contrasena-actual" autocomplete="current-password" required />
+      </div>
+      <div class="campo">
+        <label for="contrasena-nueva">Nueva contraseña</label>
+        <input type="password" id="contrasena-nueva" autocomplete="new-password" required />
+      </div>
+      <div class="campo">
+        <label for="contrasena-confirmar">Confirmar nueva contraseña</label>
+        <input type="password" id="contrasena-confirmar" autocomplete="new-password" required />
+      </div>
+      <p class="texto-suave texto-pequeno">Mínimo 8 caracteres, con al menos una letra y un número.</p>
+      <p id="contrasena-error" class="alerta alerta-error oculto" role="alert"></p>
+      <div class="acciones">
+        <button type="button" id="btn-cancelar-contrasena" class="btn btn-secundario">Cancelar</button>
+        <button type="submit" id="btn-guardar-contrasena" class="btn btn-primario">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/pages/pedidos.js"></script>
+</body>
+
+</html>

@@ -1,10 +1,13 @@
 /**
  * Configuración de ESLint (Flat Config) para analizar el código JavaScript
- * del Frontend Administrativo (src/main/resources/static/admin/js).
+ * del Frontend Administrativo (static/admin/js) y del Frontend del Cliente (static/cliente/js).
  */
 export default [
   {
-    files: ["src/main/resources/static/admin/js/**/*.js"],
+    files: [
+      "src/main/resources/static/admin/js/**/*.js",
+      "src/main/resources/static/cliente/js/**/*.js"
+    ],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -20,7 +23,8 @@ export default [
         console: "readonly",
         FormData: "readonly",
         File: "readonly",
-        URLSearchParams: "readonly"
+        URLSearchParams: "readonly",
+        encodeURIComponent: "readonly"
       }
     },
     rules: {

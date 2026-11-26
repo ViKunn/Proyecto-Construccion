@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingresar — Cafetería Universitaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/cliente.css" />
+</head>
+
+<body class="pagina-acceso">
+  <div class="acceso-shell">
+    <section class="acceso-presentacion" aria-label="Bienvenida">
+      <img src="../admin/img/hero-cafeteria.svg" alt="Mostrador de la cafetería con café y repostería" />
+      <h2>Pide antes, retira sin filas</h2>
+      <ol class="pasos">
+        <li>Elige tus productos del menú.</li>
+        <li>Confirma y recibe tu código de retiro.</li>
+        <li>Retira en el mostrador cuando esté listo.</li>
+      </ol>
+    </section>
+
+    <main class="acceso-card">
+      <header class="acceso-header">
+        <span class="emblema" aria-hidden="true">☕</span>
+        <h1>Cafetería Universitaria</h1>
+        <p class="texto-suave">Portal de pedidos para estudiantes y docentes</p>
+      </header>
+
+      <div class="tabs" role="tablist" aria-label="Acceso">
+        <button type="button" id="tab-ingresar" class="tab" role="tab" aria-selected="true"
+          aria-controls="panel-ingresar">Ingresar</button>
+        <button type="button" id="tab-registro" class="tab" role="tab" aria-selected="false"
+          aria-controls="panel-registro">Crear cuenta</button>
+      </div>
+
+      <!-- Inicio de sesión -->
+      <section id="panel-ingresar" role="tabpanel" aria-labelledby="tab-ingresar">
+        <form id="form-login" class="formulario" novalidate>
+          <div class="campo">
+            <label for="login-correo">Correo institucional</label>
+            <input type="email" id="login-correo" autocomplete="username" placeholder="nombre.apellido@institucion.edu.ec" required />
+          </div>
+          <div class="campo">
+            <label for="login-contrasena">Contraseña</label>
+            <input type="password" id="login-contrasena" autocomplete="current-password" required />
+          </div>
+          <p id="login-error" class="alerta alerta-error oculto" role="alert"></p>
+          <button type="submit" id="btn-ingresar" class="btn btn-primario btn-bloque">Ingresar</button>
+        </form>
+        <p class="texto-centro texto-suave">¿No tienes cuenta? <a href="#" id="link-registro">Regístrate aquí</a></p>
+      </section>
+
+      <!-- Registro de cliente (HU-CLI-07) -->
+      <section id="panel-registro" class="oculto" role="tabpanel" aria-labelledby="tab-registro">
+        <form id="form-registro" class="formulario" novalidate>
+          <div class="fila-campos">
+            <div class="campo">
+              <label for="reg-nombre">Nombre</label>
+              <input type="text" id="reg-nombre" autocomplete="given-name" maxlength="60" required />
+              <small id="reg-nombre-error" class="error-campo"></small>
+            </div>
+            <div class="campo">
+              <label for="reg-apellido">Apellido</label>
+              <input type="text" id="reg-apellido" autocomplete="family-name" maxlength="60" required />
+              <small id="reg-apellido-error" class="error-campo"></small>
+            </div>
+          </div>
+          <div class="fila-campos">
+            <div class="campo">
+              <label for="reg-cedula">Cédula</label>
+              <input type="text" id="reg-cedula" inputmode="numeric" maxlength="10" placeholder="10 dígitos" required />
+              <small id="reg-cedula-error" class="error-campo"></small>
+            </div>
+            <div class="campo">
+              <label for="reg-celular">Celular</label>
+              <input type="tel" id="reg-celular" inputmode="numeric" maxlength="10" placeholder="09XXXXXXXX" required />
+              <small id="reg-celular-error" class="error-campo"></small>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="reg-correo">Correo institucional</label>
+            <input type="email" id="reg-correo" autocomplete="email" required />
+            <small id="reg-correo-error" class="error-campo"></small>
+          </div>
+          <div class="fila-campos">
+            <div class="campo">
+              <label for="reg-contrasena">Contraseña</label>
+              <input type="password" id="reg-contrasena" autocomplete="new-password" required />
+              <small id="reg-contrasena-error" class="error-campo"></small>
+            </div>
+            <div class="campo">
+              <label for="reg-confirmar">Confirmar contraseña</label>
+              <input type="password" id="reg-confirmar" autocomplete="new-password" required />
+              <small id="reg-confirmar-error" class="error-campo"></small>
+            </div>
+          </div>
+          <p class="texto-suave texto-pequeno">Mínimo 8 caracteres, con al menos una letra y un número.</p>
+          <p id="registro-error" class="alerta alerta-error oculto" role="alert"></p>
+          <button type="submit" id="btn-registrar" class="btn btn-primario btn-bloque">Crear cuenta</button>
+        </form>
+      </section>
+
+      <p class="texto-centro texto-pequeno"><a href="../admin/index.html">¿Eres parte del personal? Ingresa aquí</a></p>
+    </main>
+  </div>
+
+  <script type="module" src="js/pages/acceso.js"></script>
+</body>
+
+</html>
