@@ -1,0 +1,981 @@
+/* ==========================================================================
+   Portal del cliente — Cafetería Universitaria
+   Misma paleta y tipografía que el frontend administrativo (admin/css/styles.css).
+   ========================================================================== */
+
+:root {
+  --cafe-espresso: #2c1810;
+  --cafe-tostado: #4a2c1d;
+  --cafe-moka: #6f422b;
+  --cafe-caramelo: #c87a3b;
+  --cafe-caramelo-oscuro: #a85f24;
+  --cafe-crema: #f7f1e8;
+  --cafe-latte: #efe5d8;
+  --cafe-superficie: #fffdf9;
+  --cafe-borde: #e5d6c5;
+
+  --texto-principal: #231814;
+  --texto-secundario: #6e5a4f;
+
+  --exito: #1e6f46;
+  --exito-bg: #e3f5ec;
+  --aviso: #b45309;
+  --aviso-bg: #fef3c7;
+  --info: #1d4ed8;
+  --info-bg: #e0ecff;
+  --error: #b42318;
+  --error-bg: #fde8e8;
+
+  --radio-sm: 8px;
+  --radio-md: 14px;
+  --radio-lg: 20px;
+  --sombra-suave: 0 6px 20px rgba(44, 24, 16, 0.07);
+  --sombra-elevada: 0 18px 42px rgba(44, 24, 16, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  background-color: var(--cafe-crema);
+  background-image: url("../../admin/img/cafe-pattern.svg");
+  background-size: 160px 160px;
+  color: var(--texto-principal);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Playfair Display", Georgia, serif;
+  color: var(--cafe-espresso);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.9rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+}
+
+a {
+  color: var(--cafe-caramelo-oscuro);
+  font-weight: 600;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: 3px solid var(--cafe-caramelo);
+  outline-offset: 2px;
+}
+
+/* ---------------------------- Utilidades ---------------------------- */
+
+.oculto {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.texto-suave {
+  color: var(--texto-secundario);
+}
+
+.texto-pequeno {
+  font-size: 0.85rem;
+}
+
+.texto-centro {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.estado-vacio {
+  color: var(--texto-secundario);
+  text-align: center;
+  padding: 2rem 1rem;
+  grid-column: 1 / -1;
+  list-style: none;
+}
+
+.estado-error {
+  color: var(--error);
+}
+
+/* ---------------------------- Botones ---------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: var(--radio-sm);
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primario {
+  background: var(--cafe-caramelo);
+  color: #fff;
+}
+
+.btn-primario:hover:not(:disabled) {
+  background: var(--cafe-caramelo-oscuro);
+}
+
+.btn-secundario {
+  background: var(--cafe-superficie);
+  color: var(--cafe-tostado);
+  border-color: var(--cafe-borde);
+}
+
+.btn-secundario:hover:not(:disabled) {
+  background: var(--cafe-latte);
+}
+
+.btn-texto {
+  background: none;
+  color: var(--cafe-moka);
+  padding: 0.5rem 0.6rem;
+}
+
+.btn-texto:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.btn-bloque {
+  width: 100%;
+}
+
+/* ---------------------------- Formularios ---------------------------- */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.fila-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.campo label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--cafe-tostado);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="search"],
+input[type="number"] {
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--cafe-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  color: var(--texto-principal);
+  width: 100%;
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.error-campo {
+  color: var(--error);
+  font-size: 0.8rem;
+  min-height: 1em;
+}
+
+.alerta {
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radio-sm);
+  font-size: 0.9rem;
+}
+
+.alerta-error {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+/* ---------------------------- Acceso ---------------------------- */
+
+.pagina-acceso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.acceso-shell {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  max-width: 1000px;
+  width: 100%;
+  background: var(--cafe-superficie);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-elevada);
+  overflow: hidden;
+}
+
+.acceso-presentacion {
+  background: linear-gradient(160deg, var(--cafe-tostado), var(--cafe-espresso));
+  color: var(--cafe-crema);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+.acceso-presentacion h2 {
+  color: #fff;
+  font-size: 1.6rem;
+}
+
+.pasos {
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.acceso-card {
+  padding: 2.5rem;
+}
+
+.acceso-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.emblema {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--cafe-latte);
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--cafe-latte);
+  border-radius: var(--radio-sm);
+  padding: 4px;
+  margin-bottom: 1.3rem;
+}
+
+.tab {
+  font: inherit;
+  font-weight: 600;
+  border: none;
+  background: none;
+  padding: 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--texto-secundario);
+}
+
+.tab[aria-selected="true"] {
+  background: var(--cafe-superficie);
+  color: var(--cafe-espresso);
+  box-shadow: var(--sombra-suave);
+}
+
+/* ---------------------------- Encabezado ---------------------------- */
+
+.barra-superior {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.8rem 2rem;
+  background: var(--cafe-espresso);
+  color: var(--cafe-crema);
+}
+
+.marca {
+  color: #fff;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+.nav-principal {
+  display: flex;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.nav-link {
+  color: var(--cafe-latte);
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radio-sm);
+}
+
+.nav-link:hover,
+.nav-link.activo {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.usuario .btn-texto {
+  color: var(--cafe-latte);
+}
+
+.saludo {
+  font-weight: 600;
+  margin-right: 0.3rem;
+}
+
+/* ---------------------------- Layout ---------------------------- */
+
+.contenedor {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.layout-menu {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.8rem;
+  align-items: start;
+}
+
+.seccion-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+
+.herramientas-menu {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.herramientas-menu input[type="search"] {
+  width: 220px;
+}
+
+.filtros {
+  display: flex;
+  background: var(--cafe-latte);
+  border-radius: var(--radio-sm);
+  padding: 3px;
+}
+
+.filtros button {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  background: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--texto-secundario);
+}
+
+.filtros button[aria-pressed="true"] {
+  background: var(--cafe-superficie);
+  color: var(--cafe-espresso);
+}
+
+/* ---------------------------- Menú ---------------------------- */
+
+.grilla-menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.1rem;
+}
+
+.producto-card {
+  background: var(--cafe-superficie);
+  border: 1px solid var(--cafe-borde);
+  border-radius: var(--radio-md);
+  overflow: hidden;
+  box-shadow: var(--sombra-suave);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.producto-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-elevada);
+}
+
+.producto-imagen {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--cafe-latte);
+}
+
+.producto-info {
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.producto-tipo {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cafe-caramelo-oscuro);
+  font-weight: 700;
+}
+
+.producto-pie {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.producto-precio {
+  font-size: 1.15rem;
+  color: var(--cafe-espresso);
+}
+
+.btn-agregar {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+/* ---------------------------- Carrito ---------------------------- */
+
+.panel-carrito {
+  position: sticky;
+  top: 80px;
+  background: var(--cafe-superficie);
+  border: 1px solid var(--cafe-borde);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-suave);
+  padding: 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.carrito-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contador {
+  background: var(--cafe-latte);
+  color: var(--cafe-tostado);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.15rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.lista-carrito {
+  list-style: none;
+  max-height: 50vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.carrito-linea {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px dashed var(--cafe-borde);
+}
+
+.carrito-linea-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.carrito-linea-nombre {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carrito-linea-precio {
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.carrito-linea-subtotal {
+  font-weight: 700;
+  min-width: 52px;
+  text-align: right;
+}
+
+.cantidad-control {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--cafe-borde);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+
+.btn-cantidad {
+  font: inherit;
+  border: none;
+  background: var(--cafe-latte);
+  width: 28px;
+  height: 30px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--cafe-tostado);
+}
+
+.cantidad-control .input-cantidad {
+  width: 42px;
+  border: none;
+  border-radius: 0;
+  text-align: center;
+  padding: 0.3rem 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.input-cantidad::-webkit-inner-spin-button,
+.input-cantidad::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.btn-quitar {
+  border: none;
+  background: none;
+  color: var(--texto-secundario);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem;
+}
+
+.btn-quitar:hover {
+  color: var(--error);
+}
+
+.carrito-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 1.1rem;
+  padding-top: 0.4rem;
+}
+
+.carrito-total strong {
+  font-size: 1.5rem;
+  color: var(--cafe-espresso);
+}
+
+/* ---------------------------- Tablas y diálogos ---------------------------- */
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.tabla th,
+.tabla td {
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid var(--cafe-borde);
+  text-align: left;
+}
+
+.tabla th.num,
+.tabla td.num {
+  text-align: right;
+}
+
+.tabla tfoot th {
+  font-size: 1.05rem;
+  border-bottom: none;
+}
+
+.dialogo {
+  border: none;
+  border-radius: var(--radio-lg);
+  padding: 1.8rem;
+  width: min(440px, 92vw);
+  box-shadow: var(--sombra-elevada);
+  background: var(--cafe-superficie);
+  margin: auto;
+}
+
+.dialogo-ancho {
+  width: min(620px, 94vw);
+}
+
+.dialogo::backdrop {
+  background: rgba(44, 24, 16, 0.55);
+}
+
+.dialogo h2 {
+  margin-bottom: 1rem;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.confirmacion {
+  text-align: center;
+}
+
+.icono-exito {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--exito-bg);
+  color: var(--exito);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.codigo-retiro {
+  font-family: "Courier New", monospace;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  padding: 0.6rem 0 0.6rem 0.35em;
+  margin: 0.8rem 0;
+  background: var(--cafe-latte);
+  border: 2px dashed var(--cafe-caramelo);
+  border-radius: var(--radio-md);
+  color: var(--cafe-espresso);
+}
+
+.datos-pedido {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.datos-pedido dt {
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.datos-pedido dd {
+  font-weight: 700;
+}
+
+.lista-resumen {
+  list-style: none;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.lista-resumen li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed var(--cafe-borde);
+}
+
+/* ---------------------------- Badges de estado ---------------------------- */
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-pendiente {
+  background: var(--aviso-bg);
+  color: var(--aviso);
+}
+
+.badge-en_preparacion {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.badge-listo {
+  background: var(--exito-bg);
+  color: var(--exito);
+}
+
+.badge-entregado {
+  background: var(--cafe-latte);
+  color: var(--texto-secundario);
+}
+
+/* ---------------------------- Mis pedidos ---------------------------- */
+
+.lista-pedidos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.2rem;
+}
+
+.pedido-card {
+  background: var(--cafe-superficie);
+  border: 1px solid var(--cafe-borde);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-suave);
+  padding: 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.pedido-listo {
+  border: 2px solid var(--exito);
+  box-shadow: 0 0 0 4px var(--exito-bg), var(--sombra-suave);
+}
+
+.pedido-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.pedido-cabecera .texto-suave {
+  font-size: 0.85rem;
+}
+
+.pedido-mensaje {
+  font-size: 0.92rem;
+}
+
+.progreso {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  font-size: 0.72rem;
+  text-align: center;
+  color: var(--texto-secundario);
+}
+
+.progreso li {
+  padding-top: 0.5rem;
+  border-top: 5px solid var(--cafe-borde);
+}
+
+.progreso li.completo {
+  border-top-color: var(--cafe-caramelo);
+}
+
+.progreso li.actual {
+  border-top-color: var(--cafe-caramelo-oscuro);
+  color: var(--cafe-espresso);
+  font-weight: 700;
+}
+
+.pedido-codigo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--cafe-latte);
+  border-radius: var(--radio-sm);
+  padding: 0.6rem 0.9rem;
+}
+
+.pedido-codigo strong {
+  font-family: "Courier New", monospace;
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+}
+
+.pedido-detalle summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--cafe-moka);
+  margin-bottom: 0.4rem;
+}
+
+.pedido-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.05rem;
+  border-top: 1px solid var(--cafe-borde);
+  padding-top: 0.6rem;
+}
+
+/* ---------------------------- Toasts ---------------------------- */
+
+.toast-container {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 100;
+  max-width: min(360px, 90vw);
+}
+
+.toast {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radio-sm);
+  box-shadow: var(--sombra-elevada);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--info-bg);
+  color: var(--info);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.toast-exito {
+  background: var(--exito-bg);
+  color: var(--exito);
+}
+
+.toast-error {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.toast-aviso {
+  background: var(--aviso-bg);
+  color: var(--aviso);
+}
+
+.toast-oculto {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* ---------------------------- Responsive ---------------------------- */
+
+@media (max-width: 900px) {
+  .layout-menu {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-carrito {
+    position: static;
+  }
+
+  .acceso-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .acceso-presentacion {
+    display: none;
+  }
+
+  .barra-superior {
+    flex-wrap: wrap;
+    padding: 0.8rem 1rem;
+    gap: 0.6rem;
+  }
+
+  .contenedor {
+    padding: 1.2rem 1rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .fila-campos {
+    grid-template-columns: 1fr;
+  }
+
+  .acceso-card {
+    padding: 1.6rem 1.2rem;
+  }
+
+  .saludo {
+    display: none;
+  }
+
+  .lista-pedidos {
+    grid-template-columns: 1fr;
+  }
+}
