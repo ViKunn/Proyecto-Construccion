@@ -95,3 +95,9 @@ La **Aplicación Web** está estructurada en vistas y módulos funcionales const
 | **Módulo de Clientes** | HTML, CSS, JavaScript | Interfaz dedicada a estudiantes y docentes para consultar el menú disponible, armar pedidos anticipados, visualizar importes totales y consultar el estado y código de retiro de sus órdenes. |
 | **Módulo de Trabajadores** | HTML, CSS, JavaScript | Panel operativo para el personal de cafetería, permitiendo administrar productos, precios y disponibilidad del menú, así como gestionar la cola de pedidos hasta su entrega. |
 | **Módulo de Administrador** | HTML, CSS, JavaScript | Interfaz administrativa restringida para consultar el listado del personal y aprovisionar nuevas cuentas de trabajadores. |
+
+---
+
+## 5. Nivel 4: Diagramas de Código (Clases)
+
+Para detallar la estructura interna a nivel de código sin sobrecargar la vista arquitectónica general, los diagramas de clases por cada módulo del **Servidor Backend** (`auth`, `cliente`, `trabajador`, `producto`, `pedido`, `historial` y `core`) junto con la explicación de sus componentes e interacciones se encuentran documentados en [DiagramaClases.md](./DiagramaClases.md).
