@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Personal de Cafetería — Cafetería Universitaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <!-- Barra superior del trabajador autenticado -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+          <line x1="6" y1="2" x2="6" y2="4" />
+          <line x1="10" y1="2" x2="10" y2="4" />
+          <line x1="14" y1="2" x2="14" y2="4" />
+        </svg>
+      </div>
+      <div>
+        <h1>Cafetería Universitaria</h1>
+        <span>Mostrador · Pedidos, retiro por código y menú del día</span>
+      </div>
+    </div>
+    <div class="topbar-user">
+      <span id="trabajador-info">Personal</span>
+      <button type="button" id="btn-abrir-cambio-clave" class="btn btn-outline-light btn-sm">
+        Cambiar contraseña
+      </button>
+      <button type="button" id="btn-cerrar-sesion" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Banner decorativo 2D del mostrador de cafetería -->
+    <section class="welcome-banner">
+      <div class="welcome-banner-text">
+        <h2>Mostrador de Cafetería</h2>
+        <p>
+          Controla la cola de pedidos en tiempo real, verifica los códigos de retiro al entregar y
+          actualiza los productos disponibles de tu carta.
+        </p>
+      </div>
+      <img src="img/hero-cafeteria.svg" alt="Ilustración del mostrador de cafetería" class="welcome-banner-art" />
+    </section>
+
+    <!-- Navegación principal por pestañas del panel operativo -->
+    <nav class="tabs" aria-label="Secciones del panel de cafetería">
+      <button type="button" class="tab-btn active" data-tab="tab-pedidos">
+        Panel de Pedidos
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-retiro">
+        Validar Código de Retiro
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-menu">
+        Gestión del Menú
+      </button>
+    </nav>
+
+    <!-- ==================== PESTAÑA 1: PANEL DE PEDIDOS (HU-PER-04, 05, 06) ==================== -->
+    <section id="tab-pedidos" class="tab-panel active">
+      <div class="card">
+        <div class="card-header">
+          <h2>Cola de pedidos de la cafetería</h2>
+          <button type="button" id="btn-actualizar-pedidos" class="btn btn-secondary btn-sm">
+            Actualizar pedidos
+          </button>
+        </div>
+
+        <!-- Filtros por estado exactos del backend (estado_pedido_enum) -->
+        <div class="status-pills" id="filtros-estado-pedidos">
+          <button type="button" class="pill-btn active" data-estado="pendiente">
+            Pendientes (<span id="count-pendiente">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="en_preparacion">
+            En preparación (<span id="count-preparacion">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="listo">
+            Listos para retirar (<span id="count-listo">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="entregado">
+            Entregados (<span id="count-entregado">0</span>)
+          </button>
+          <button type="button" class="pill-btn" data-estado="">
+            Todos (<span id="count-todos">0</span>)
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha registro</th>
+                <th>Importe total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-pedidos-body">
+              <tr>
+                <td colspan="6" class="empty-state">Cargando pedidos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA 2: VALIDAR CÓDIGO DE RETIRO (HU-PER-07) ==================== -->
+    <section id="tab-retiro" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <h2>Validación de código y entrega de pedido</h2>
+        </div>
+
+        <p class="text-muted">
+          Selecciona un pedido en estado <strong>Listo para retirar</strong> e ingresa el código de
+          6 caracteres que presenta el cliente. Por seguridad, el código no se muestra al personal
+          y es verificado directamente en el servidor (RN-NEG-07).
+        </p>
+
+        <div class="retiro-box">
+          <form id="form-retiro-pedido" class="form-grid" novalidate>
+            <div class="form-group">
+              <label for="select-pedido-listo">Pedido listo para retirar</label>
+              <select id="select-pedido-listo" required>
+                <option value="">Selecciona un pedido...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="input-codigo-retiro">Código de retiro (6 caracteres)</label>
+              <input type="text" id="input-codigo-retiro" class="code-input" maxlength="6" placeholder="K7M3QX"
+                required />
+            </div>
+          </form>
+
+          <div class="actions-cell">
+            <button type="button" id="btn-comprobar-codigo" class="btn btn-secondary">
+              Comprobar código
+            </button>
+            <button type="button" id="btn-confirmar-entrega" class="btn btn-success">
+              Confirmar entrega
+            </button>
+          </div>
+        </div>
+
+        <!-- Resultado dinámico de verificación / resumen del pedido seleccionado -->
+        <div id="resultado-retiro" class="mt-1"></div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA 3: GESTIÓN DEL MENÚ (HU-PER-01, 02, 03) ==================== -->
+    <section id="tab-menu" class="tab-panel">
+      <!-- Formulario para registrar un nuevo producto con imagen opcional (HU-PER-01) -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Registrar nuevo producto en el menú</h2>
+        </div>
+
+        <form id="form-nuevo-producto" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="prod-nombre">Nombre del producto</label>
+              <input type="text" id="prod-nombre" placeholder="Ej. Té frío" required />
+            </div>
+
+            <div class="form-group">
+              <label for="prod-precio">Precio (USD)</label>
+              <input type="number" id="prod-precio" step="0.01" min="0.01" max="999.99" placeholder="1.25" required />
+            </div>
+
+            <div class="form-group">
+              <label for="prod-tipo">Tipo de producto</label>
+              <select id="prod-tipo" required>
+                <option value="alimento">Alimento</option>
+                <option value="bebida">Bebida</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="prod-imagen">Imagen (opcional, JPG/PNG/WEBP máx. 2 MB)</label>
+              <input type="file" id="prod-imagen" accept="image/jpeg,image/png,image/webp" />
+            </div>
+          </div>
+
+          <button type="submit" id="btn-guardar-producto" class="btn btn-primary">
+            Guardar producto
+          </button>
+        </form>
+      </div>
+
+      <!-- Tabla de catálogo completo, edición, imagen y armado de menú en lote -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Catálogo actual del menú</h2>
+          <div class="toolbar" style="margin-bottom: 0;">
+            <input type="search" id="filtro-menu-texto" placeholder="Buscar por código o nombre..." />
+            <select id="filtro-menu-tipo">
+              <option value="">Todos los tipos</option>
+              <option value="alimento">Alimentos</option>
+              <option value="bebida">Bebidas</option>
+            </select>
+            <select id="filtro-menu-disp">
+              <option value="">Todas las disponibilidades</option>
+              <option value="true">Disponibles</option>
+              <option value="false">No disponibles</option>
+            </select>
+            <button type="button" id="btn-armar-menu" class="btn btn-warning btn-sm">
+              Guardar menú seleccionado
+            </button>
+          </div>
+        </div>
+
+        <p class="text-muted" style="margin-bottom: 0.9rem;">
+          Usa el interruptor de cada tarjeta para activar o pausar un producto al instante, o marca
+          la casilla <strong>En menú</strong> y pulsa <strong>Guardar menú seleccionado</strong> para aplicar cambios en
+          lote.
+        </p>
+
+        <!-- Carta visual de productos de la cafetería -->
+        <div id="catalogo-menu-grid" class="menu-grid">
+          <div class="empty-state menu-grid-empty">Cargando menú...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODAL: DETALLE DE PEDIDO ==================== -->
+  <div id="modal-detalle-pedido" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-pedido-titulo">Detalle del pedido</h3>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-detalle-pedido">
+          Cerrar
+        </button>
+      </div>
+      <div id="modal-pedido-contenido"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: EDITAR PRODUCTO E IMAGEN (HU-PER-02) ==================== -->
+  <div id="modal-editar-producto" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Actualizar producto del menú</h3>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-editar-producto">
+          Cerrar
+        </button>
+      </div>
+
+      <p class="alert alert-info">
+        Actualizar el precio solo aplica a nuevos pedidos y no modifica el precio
+        registrado en pedidos anteriores. El tipo de producto no se puede modificar.
+      </p>
+
+      <form id="form-editar-producto" novalidate>
+        <input type="hidden" id="edit-prod-codigo" />
+
+        <div class="form-group">
+          <label for="edit-prod-nombre">Nombre del producto</label>
+          <input type="text" id="edit-prod-nombre" required />
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="edit-prod-precio">Precio (USD)</label>
+            <input type="number" id="edit-prod-precio" step="0.01" min="0.01" max="999.99" required />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-prod-disponible">Disponibilidad</label>
+            <select id="edit-prod-disponible" required>
+              <option value="true">Disponible</option>
+              <option value="false">No disponible</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-prod-imagen">Reemplazar imagen (opcional, JPG/PNG/WEBP máx. 2 MB)</label>
+          <input type="file" id="edit-prod-imagen" accept="image/jpeg,image/png,image/webp" />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="modal-editar-producto">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-actualizar-producto" class="btn btn-primary">
+            Guardar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CAMBIAR CONTRASEÑA (HU-USU-01) ==================== -->
+  <div id="modal-cambio-clave" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Cambiar contraseña</h3>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-cambio-clave">
+          Cerrar
+        </button>
+      </div>
+
+      <div id="cambio-clave-error" class="alert alert-error hidden" role="alert"></div>
+
+      <form id="form-cambio-clave" novalidate>
+        <div class="form-group">
+          <label for="clave-actual">Contraseña actual</label>
+          <input type="password" id="clave-actual" autocomplete="current-password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="clave-nueva">Nueva contraseña</label>
+          <input
+            type="password"
+            id="clave-nueva"
+            placeholder="Mín. 8 caracteres, una letra y un número"
+            autocomplete="new-password"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="clave-confirmar">Confirmar nueva contraseña</label>
+          <input type="password" id="clave-confirmar" autocomplete="new-password" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="modal-cambio-clave">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-guardar-cambio-clave" class="btn btn-primary">
+            Actualizar contraseña
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/pages/trabajador.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none">
+  <!-- Ilustración 2D de Bebida para productos sin foto cargada -->
+  <defs>
+    <linearGradient id="bgDrink" x1="0" y1="0" x2="320" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f4e8d8"/>
+      <stop offset="100%" stop-color="#e4cfb6"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#bgDrink)"/>
+  <circle cx="268" cy="36" r="46" fill="#c87a3b" fill-opacity="0.14"/>
+  <circle cx="48" cy="176" r="54" fill="#4a2c1d" fill-opacity="0.08"/>
+
+  <!-- Taza 2D -->
+  <ellipse cx="156" cy="152" rx="56" ry="10" fill="#cfb699"/>
+  <path d="M116 82h78v48a24 24 0 0 1-24 24h-30a24 24 0 0 1-24-24V82Z" fill="#fffdf9" stroke="#6f422b" stroke-width="3"/>
+  <path d="M194 94h14a14 14 0 0 1 0 28h-14" stroke="#6f422b" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="155" cy="82" rx="39" ry="9" fill="#5c3521"/>
+  <ellipse cx="155" cy="82" rx="24" ry="5" fill="#d9a574"/>
+
+  <!-- Vapor -->
+  <path d="M138 62c0-8 7-10 7-18" stroke="#a85f24" stroke-width="3" stroke-linecap="round"/>
+  <path d="M155 58c0-9 7-11 7-20" stroke="#a85f24" stroke-width="3" stroke-linecap="round"/>
+  <path d="M172 62c0-8 7-10 7-18" stroke="#a85f24" stroke-width="3" stroke-linecap="round"/>
+</svg>

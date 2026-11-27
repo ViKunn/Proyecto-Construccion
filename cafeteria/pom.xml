@@ -74,6 +74,10 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+  			<groupId>org.springframework.security</groupId>
+ 			<artifactId>spring-security-crypto</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -117,6 +121,46 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<!-- Análisis estático: Checkstyle (estilo de código, nombres e imports en Java) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.6.0</version>
+				<configuration>
+					<configLocation>config/checkstyle/checkstyle.xml</configLocation>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>false</failsOnError>
+					<failOnViolation>false</failOnViolation>
+					<includeTestSourceDirectory>true</includeTestSourceDirectory>
+				</configuration>
+			</plugin>
+
+			<!-- Análisis estático: PMD (detección de malas prácticas, complejidad y código sin usar) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.28.0</version>
+				<configuration>
+					<targetJdk>${java.version}</targetJdk>
+					<printFailingErrors>true</printFailingErrors>
+					<failOnViolation>false</failOnViolation>
+					<linkXRef>false</linkXRef>
+				</configuration>
+			</plugin>
+
+			<!-- Análisis estático: SpotBugs (detección de posibles defectos en bytecode Java 25) -->
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.8.0</version>
+				<configuration>
+					<effort>Max</effort>
+					<threshold>Low</threshold>
+					<failOnError>false</failOnError>
+					<xmlOutput>true</xmlOutput>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
