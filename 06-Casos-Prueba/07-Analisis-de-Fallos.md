@@ -30,7 +30,7 @@ Se esperaba el código 400. El servidor respondió 201 y registró 2 unidades, i
 
 **Análisis.** El convertidor de JSON (Jackson) acepta por defecto un decimal en un campo entero y descarta la parte decimal. `ValidadorPedido` recibe ya el número 2 y no puede detectar el error. La interfaz no envía decimales, por lo que el fallo solo se produce con peticiones directas a la API.
 
-**Solución propuesta**, en `cafeteria/src/main/resources/application.properties`:
+**Solución** (commit `d01f757`, integrado en `develop` con el Pull Request 29 y en `main` con el 30), en `cafeteria/src/main/resources/application.properties`:
 
 ```properties
 # Rechaza decimales en campos enteros en vez de truncarlos (RN-NEG-01)
@@ -39,8 +39,6 @@ spring.jackson.deserialization.accept-float-as-int=false
 
 El ajuste se aplica a todos los campos enteros que recibe la API. El mensaje de rechazo es el genérico «El cuerpo de la petición no es un JSON válido»; podría detallarse más adelante.
 
-**Nueva ejecución** (copia temporal de `aa1507f` con la línea añadida): **Aprobado.** Respuesta 400; pedidos creados: 0. También se repitió el anexo A: 56 de 56 aprobados.
-
-> **Estado:** la solución todavía no está integrada en `develop` ni en `main`. Al integrarla se debe repetir CP-35 sobre el commit resultante y actualizar esta sección.
+**Nueva ejecución** (commit `2a7f6bd` de `main`, con la solución integrada): **Aprobado.** Respuesta 400; pedidos creados: 0. También se repitió el anexo A: 56 de 56 aprobados.
 
 ![CP-35 nueva ejecución](evidencias/capturas/CP-35-reejecucion.jpg)

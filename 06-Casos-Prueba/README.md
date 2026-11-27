@@ -31,7 +31,7 @@ El fallo del anexo A (CF-PED-05) es el mismo defecto que CP-35.
 | Caso fallido | Defecto | Situación |
 |---|---|---|
 | [CP-28](05-Productos.md#cp-28) | Guardar el menú con un filtro desactivaba los productos ocultos | Corregido e integrado (commit `f5e1910`); aprobado en la nueva ejecución |
-| [CP-35](03-Menu-Pedidos-y-Seguimiento.md#cp-35) | La API aceptaba cantidades decimales y las truncaba | Solución verificada en una copia temporal; **pendiente de integrar** |
+| [CP-35](03-Menu-Pedidos-y-Seguimiento.md#cp-35) | La API aceptaba cantidades decimales y las truncaba | Corregido e integrado (commit `d01f757`); aprobado en la nueva ejecución |
 
 ## Matriz de casos
 
@@ -71,6 +71,6 @@ El fallo del anexo A (CF-PED-05) es el mismo defecto que CP-35.
 | [CP-32](06-Administracion-Cuenta-y-Persistencia.md#cp-32) | Cuenta | Cambiar contraseña indicando mal la actual | HU-USU-01 | Aprobado | Aprobado |
 | [CP-33](06-Administracion-Cuenta-y-Persistencia.md#cp-33) | Cuenta | Cambiar la contraseña e iniciar sesión con la nueva | HU-USU-01 | Aprobado | Aprobado |
 | [CP-34](06-Administracion-Cuenta-y-Persistencia.md#cp-34) | Cuenta | Cerrar sesión | HU-USU-02 | Aprobado | Aprobado |
-| [CP-35](03-Menu-Pedidos-y-Seguimiento.md#cp-35) | Pedido | La API rechaza una cantidad decimal | RN-NEG-01, HU-CLI-04 | Fallido | Solución verificada, **pendiente de integrar** |
+| [CP-35](03-Menu-Pedidos-y-Seguimiento.md#cp-35) | Pedido | La API rechaza una cantidad decimal | RN-NEG-01, HU-CLI-04 | Fallido | Aprobado en la nueva ejecución |
 | [CP-36](02-Registro-y-Acceso.md#cp-36) | Registro | Registrar un correo que no es institucional | HU-CLI-07 | Aprobado | Aprobado |
 | [CP-37](06-Administracion-Cuenta-y-Persistencia.md#cp-37) | Persistencia | Los pedidos se conservan al reiniciar la aplicación | RNF-01 | Aprobado | Aprobado |

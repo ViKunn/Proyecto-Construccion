@@ -4,7 +4,7 @@ Complementan los casos de interfaz: verifican permisos, validaciones del servido
 Script: [scripts/pruebas_funcionales.mjs](scripts/pruebas_funcionales.mjs).
 
 - **Primera ejecución** (versión `aa1507f`): 56 casos, 55 aprobados, 1 fallido.
-- **Nueva ejecución** (copia temporal con la solución de CP-35): 56 casos, 56 aprobados, 0 fallidos.
+- **Nueva ejecución** (commit `2a7f6bd`, con la solución de CP-35 integrada): 56 casos, 56 aprobados, 0 fallidos.
 
 | ID | Caso | Requisito | Resultado esperado | Resultado obtenido (1.ª ejecución) | 1.ª | Nueva |
 |---|---|---|---|---|---|---|

@@ -8,7 +8,7 @@ Se probaron las historias de usuario, las reglas de negocio RN-NEG-01 a 07 y req
 
 | Elemento | Detalle |
 |---|---|
-| Código probado | Rama `main`, commit `aa1507f` |
+| Código probado | Rama `main`, commit `aa1507f`. La nueva ejecución de CP-35 y del anexo A se hizo sobre `2a7f6bd` |
 | Aplicación | Spring Boot 4.2.0 sobre JDK 26 (el proyecto compila para Java 25) |
 | Base de datos | PostgreSQL 17.12 local en Docker, cargada con los scripts de `07-Manual-Instalacion/sql` (se creó antes el esquema `extensions`, que Supabase ya incluye) |
 | Navegador | Microsoft Edge, 1280 × 800 |
