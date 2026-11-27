@@ -441,29 +441,21 @@ async function manejarConfirmarEntrega() {
 /**
  * Renderiza el catálogo del menú como una carta visual profesional de tarjetas
  * (foto destacada, categoría Bebida/Alimento, precio, interruptor de disponibilidad y edición).
+ * Dibuja todos los productos; los filtros solo ocultan tarjetas, para que las casillas
+ * "En menú" sigan existiendo al guardar el menú en lote.
  */
 function renderizarTablaMenu() {
   const contenedor = document.getElementById("catalogo-menu-grid");
-  const texto = document.getElementById("filtro-menu-texto").value.trim().toLowerCase();
-  const tipo = document.getElementById("filtro-menu-tipo").value;
-  const disp = document.getElementById("filtro-menu-disp").value;
 
-  const filtrados = productosCache.filter((p) => {
-    const coincideTexto =
-      String(p.codigoProducto).includes(texto) ||
-      p.nombre.toLowerCase().includes(texto);
-    const coincideTipo = !tipo || p.tipoProducto === tipo;
-    const coincideDisp = !disp || String(p.disponible) === disp;
-    return coincideTexto && coincideTipo && coincideDisp;
+  // Casillas "En menú" cambiadas sin guardar: código -> valor guardado al marcarlas
+  const pendientes = new Map();
+  contenedor.querySelectorAll(".chk-menu-item").forEach((chk) => {
+    if (chk.checked !== chk.defaultChecked) {
+      pendientes.set(chk.value, chk.defaultChecked);
+    }
   });
 
-  if (filtrados.length === 0) {
-    contenedor.innerHTML =
-      '<div class="empty-state menu-grid-empty">No hay productos que coincidan con el filtro.</div>';
-    return;
-  }
-
-  contenedor.innerHTML = filtrados
+  const tarjetas = productosCache
     .map((p) => {
       const esDisponible = Boolean(p.disponible);
       const esBebida = p.tipoProducto === "bebida";
@@ -477,7 +469,10 @@ function renderizarTablaMenu() {
       const mediaHtml = `<img src="${escaparHtml(srcImagen)}" alt="${escaparHtml(p.nombre)}" />`;
 
       return `
-        <article class="menu-card ${esDisponible ? "" : "menu-card--inactivo"}">
+        <article
+          class="menu-card ${esDisponible ? "" : "menu-card--inactivo"}"
+          data-codigo="${escaparHtml(p.codigoProducto)}"
+        >
           <div class="menu-card-media">
             ${mediaHtml}
             <div class="menu-card-top-badges">
@@ -529,6 +524,48 @@ function renderizarTablaMenu() {
       `;
     })
     .join("");
+
+  contenedor.innerHTML = `${tarjetas}
+    <div class="empty-state menu-grid-empty hidden">No hay productos que coincidan con el filtro.</div>`;
+
+  // Se recupera la marca solo si la disponibilidad guardada del producto no cambió
+  contenedor.querySelectorAll(".chk-menu-item").forEach((chk) => {
+    if (pendientes.get(chk.value) === chk.defaultChecked) {
+      chk.checked = !chk.defaultChecked;
+    }
+  });
+
+  filtrarCatalogoMenu();
+}
+
+/**
+ * Muestra u oculta las tarjetas del catálogo según la búsqueda y los filtros,
+ * sin volver a dibujarlas.
+ */
+function filtrarCatalogoMenu() {
+  const contenedor = document.getElementById("catalogo-menu-grid");
+  const texto = document.getElementById("filtro-menu-texto").value.trim().toLowerCase();
+  const tipo = document.getElementById("filtro-menu-tipo").value;
+  const disp = document.getElementById("filtro-menu-disp").value;
+  let visibles = 0;
+
+  productosCache.forEach((p) => {
+    const coincideTexto =
+      String(p.codigoProducto).includes(texto) ||
+      p.nombre.toLowerCase().includes(texto);
+    const coincideTipo = !tipo || p.tipoProducto === tipo;
+    const coincideDisp = !disp || String(p.disponible) === disp;
+    const coincide = coincideTexto && coincideTipo && coincideDisp;
+
+    contenedor
+      .querySelector(`.menu-card[data-codigo="${p.codigoProducto}"]`)
+      ?.classList.toggle("hidden", !coincide);
+    if (coincide) {
+      visibles += 1;
+    }
+  });
+
+  contenedor.querySelector(".menu-grid-empty")?.classList.toggle("hidden", visibles > 0);
 }
 
 async function cargarProductos() {
@@ -744,9 +781,9 @@ async function inicializarPanelTrabajador() {
   gridMenu.addEventListener("click", manejarClickCatalogoMenu);
   gridMenu.addEventListener("change", manejarCambioDisponibilidadMenu);
   document.getElementById("btn-armar-menu").addEventListener("click", manejarArmarMenu);
-  document.getElementById("filtro-menu-texto").addEventListener("input", renderizarTablaMenu);
-  document.getElementById("filtro-menu-tipo").addEventListener("change", renderizarTablaMenu);
-  document.getElementById("filtro-menu-disp").addEventListener("change", renderizarTablaMenu);
+  document.getElementById("filtro-menu-texto").addEventListener("input", filtrarCatalogoMenu);
+  document.getElementById("filtro-menu-tipo").addEventListener("change", filtrarCatalogoMenu);
+  document.getElementById("filtro-menu-disp").addEventListener("change", filtrarCatalogoMenu);
 
   // Carga inicial contra el backend real
   await Promise.all([cargarPedidos(), cargarProductos()]);
