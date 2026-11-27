@@ -1,0 +1,55 @@
+# Anexo B. Pruebas unitarias existentes (RNF-06)
+
+Ejecutadas sobre la versión `aa1507f` con `./mvnw test -Dtest='*Test'` (no usan la base de datos).
+Resultado: **48 pruebas, 48 aprobadas, 0 fallidas.**
+
+| Clase | Prueba | Resultado |
+|---|---|---|
+| AuthServicioTest | `noAutenticaCredencialesIncorrectas` | Aprobado |
+| AuthServicioTest | `autenticaConCredencialesCorrectas` | Aprobado |
+| AuthServicioTest | `informaCamposFaltantes` | Aprobado |
+| AuthServicioTest | `rechazaNuevaContrasenaCorta` | Aprobado |
+| AuthServicioTest | `contrasenaAnteriorDejaDeFuncionar` | Aprobado |
+| AuthServicioTest | `cambiaContrasenaCorrectamente` | Aprobado |
+| AuthServicioTest | `rechazaNuevaContrasenaSinNumeros` | Aprobado |
+| AuthServicioTest | `rechazaNuevaIgualALaActual` | Aprobado |
+| AuthServicioTest | `usuarioInexistente` | Aprobado |
+| AuthServicioTest | `rechazaContrasenaActualIncorrecta` | Aprobado |
+| ValidadorDatosTest | `contrasenas` | Aprobado |
+| ValidadorDatosTest | `celular` | Aprobado |
+| ValidadorDatosTest | `correoInstitucional` | Aprobado |
+| ValidadorDatosTest | `cedulasInvalidas` | Aprobado |
+| ValidadorDatosTest | `cedulaValida` | Aprobado |
+| ValidadorDatosTest | `nombres` | Aprobado |
+| ValidadorPedidoTest | `sinLimiteConfigurado` | Aprobado |
+| ValidadorPedidoTest | `demasiadasLineas` | Aprobado |
+| ValidadorPedidoTest | `cantidadNoPositiva` | Aprobado |
+| ValidadorPedidoTest | `conLimiteConfigurado` | Aprobado |
+| ValidadorPedidoTest | `pedidoSinProductos` | Aprobado |
+| ValidadorPedidoTest | `codigoProductoInvalido` | Aprobado |
+| ValidadorPedidoTest | `normalizaCodigo` | Aprobado |
+| ValidadorPedidoTest | `formatoCodigo` | Aprobado |
+| ValidadorPedidoTest | `pedidoValido` | Aprobado |
+| PedidoServicioTest | `verificaCodigo` | Aprobado |
+| PedidoServicioTest | `entregaPedido` | Aprobado |
+| PedidoServicioTest | `marcaListo` | Aprobado |
+| PedidoServicioTest | `pedidoInexistente` | Aprobado |
+| PedidoServicioTest | `productoDeshabilitadoEnCarrera` | Aprobado |
+| PedidoServicioTest | `noIniciaPreparacionSiNoEstaPendiente` | Aprobado |
+| PedidoServicioTest | `conflictoPorConcurrencia` | Aprobado |
+| PedidoServicioTest | `clienteNoVePedidoAjeno` | Aprobado |
+| PedidoServicioTest | `noEntregaSiNoEstaListo` | Aprobado |
+| PedidoServicioTest | `noSaltaDePendienteAListo` | Aprobado |
+| PedidoServicioTest | `registraPedidoValido` | Aprobado |
+| PedidoServicioTest | `colaDelPersonalPorDefecto` | Aprobado |
+| PedidoServicioTest | `iniciaPreparacion` | Aprobado |
+| PedidoServicioTest | `estadoDesdeTexto` | Aprobado |
+| PedidoServicioTest | `colaFiltradaYLimitada` | Aprobado |
+| PedidoServicioTest | `rechazaProductoInexistente` | Aprobado |
+| PedidoServicioTest | `rechazaCantidadNoPositiva` | Aprobado |
+| PedidoServicioTest | `rechazaEstadoDesconocido` | Aprobado |
+| PedidoServicioTest | `rechazaProductoNoDisponible` | Aprobado |
+| PedidoServicioTest | `consolidaProductosRepetidos` | Aprobado |
+| PedidoServicioTest | `rechazaPedidoSinProductos` | Aprobado |
+| PedidoServicioTest | `subtotalDetalle` | Aprobado |
+| PedidoServicioTest | `noEntregaConCodigoIncorrecto` | Aprobado |
