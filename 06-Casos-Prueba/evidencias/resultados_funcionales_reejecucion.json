@@ -1,0 +1,568 @@
+{
+  "fecha": "2026-11-27T07:24:30.606Z",
+  "base": "http://127.0.0.1:8090",
+  "total": 56,
+  "fallidos": 0,
+  "resultados": [
+    {
+      "id": "CF-AUT-01",
+      "area": "Autenticación",
+      "titulo": "Inicio de sesión de los tres tipos de usuario",
+      "refs": "HU-USU-02, RNF-02",
+      "pasos": "POST /api/auth/login con una cuenta de cada tipo",
+      "esperado": "200, tipo de usuario correcto y cookie de sesión HttpOnly",
+      "obtenido": "200 cliente, HttpOnly / 200 trabajador, HttpOnly / 200 administrador, HttpOnly",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-AUT-02",
+      "area": "Autenticación",
+      "titulo": "Credenciales incorrectas no revelan si el correo existe",
+      "refs": "HU-USU-02",
+      "pasos": "Iniciar sesión con contraseña errónea y con un correo inexistente",
+      "esperado": "401 con el mismo mensaje en ambos casos",
+      "obtenido": "401 «Correo o contraseña incorrectos» / 401 «Correo o contraseña incorrectos»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-AUT-03",
+      "area": "Autenticación",
+      "titulo": "Operaciones protegidas sin sesión",
+      "refs": "HU-USU-02, RNF-02",
+      "pasos": "Sin iniciar sesión: GET mis-pedidos, GET pedidos, GET trabajadores, GET historial",
+      "esperado": "401 en las cuatro",
+      "obtenido": "401, 401, 401, 401",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-AUT-04",
+      "area": "Autenticación",
+      "titulo": "Cada tipo de usuario solo accede a sus operaciones",
+      "refs": "HU-USU-02, HU-ADM-03",
+      "pasos": "Cliente consulta la cola; trabajador consulta trabajadores y crea un pedido; administrador avanza un pedido; trabajador consulta el historial",
+      "esperado": "403 en las cinco",
+      "obtenido": "403, 403, 403, 403, 403",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-AUT-05",
+      "area": "Autenticación",
+      "titulo": "Cerrar sesión invalida el acceso",
+      "refs": "HU-USU-02",
+      "pasos": "Iniciar sesión, cerrar sesión y consultar /api/auth/me",
+      "esperado": "401 después de cerrar sesión",
+      "obtenido": "antes 200, logout 204, después 401",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-REG-01",
+      "area": "Registro",
+      "titulo": "Registro de un cliente válido",
+      "refs": "HU-CLI-07",
+      "pasos": "POST /api/clientes/registro con datos válidos e iniciar sesión",
+      "esperado": "201 e inicio de sesión correcto",
+      "obtenido": "registro 201, inicio de sesión 200",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-REG-02",
+      "area": "Registro",
+      "titulo": "Cédula con dígito verificador incorrecto",
+      "refs": "HU-CLI-07",
+      "pasos": "Registrar con {\"cedula\":\"1700000028\"}",
+      "esperado": "400 con error en «cedula» y sin crear la cuenta",
+      "obtenido": "400 «La cédula no es válida (dígito verificador incorrecto)»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-REG-03",
+      "area": "Registro",
+      "titulo": "Correo fuera del dominio institucional",
+      "refs": "HU-CLI-07",
+      "pasos": "Registrar con {\"correo\":\"persona@gmail.com\"}",
+      "esperado": "400 con error en «correo» y sin crear la cuenta",
+      "obtenido": "400 «Debe usar su correo institucional (@institucion.edu.ec)»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-REG-04",
+      "area": "Registro",
+      "titulo": "Celular que no empieza con 09",
+      "refs": "HU-CLI-07",
+      "pasos": "Registrar con {\"celular\":\"0890000001\"}",
+      "esperado": "400 con error en «celular» y sin crear la cuenta",
+      "obtenido": "400 «El celular debe tener 10 dígitos y empezar con 09»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-REG-05",
+      "area": "Registro",
+      "titulo": "Contraseña sin números",
+      "refs": "HU-CLI-07",
+      "pasos": "Registrar con {\"contrasena\":\"solamenteletras\"}",
+      "esperado": "400 con error en «contrasena» y sin crear la cuenta",
+      "obtenido": "400 «La contraseña debe incluir al menos una letra y un número»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-REG-06",
+      "area": "Registro",
+      "titulo": "Correo o cédula repetidos",
+      "refs": "HU-CLI-07",
+      "pasos": "Registrar de nuevo con el mismo correo y luego con la misma cédula",
+      "esperado": "409 en ambos casos",
+      "obtenido": "409 «Ya existe una cuenta con este correo» / 409 «Ya existe un cliente con esta cédula»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-REG-07",
+      "area": "Registro",
+      "titulo": "La contraseña se guarda cifrada",
+      "refs": "RNF-02",
+      "pasos": "Consultar en la base el hash de la cuenta registrada",
+      "esperado": "Hash BCrypt de costo 10, distinto de la contraseña",
+      "obtenido": "hash $2a$10$… de 60 caracteres",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PWD-01",
+      "area": "Contraseña",
+      "titulo": "Cambio sin sesión",
+      "refs": "HU-USU-01",
+      "pasos": "PUT /api/auth/contrasena sin sesión",
+      "esperado": "401",
+      "obtenido": "401",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PWD-02",
+      "area": "Contraseña",
+      "titulo": "Contraseña actual incorrecta",
+      "refs": "HU-USU-01",
+      "pasos": "Cambiar indicando mal la contraseña actual",
+      "esperado": "400 y la contraseña anterior sigue funcionando",
+      "obtenido": "400 «La contraseña actual es incorrecta», inicio con la anterior 200",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PWD-03",
+      "area": "Contraseña",
+      "titulo": "Nueva contraseña igual a la actual o débil",
+      "refs": "HU-USU-01",
+      "pasos": "Cambiar por la misma contraseña y por «corta1»",
+      "esperado": "400 en ambos casos",
+      "obtenido": "400 «La nueva contraseña debe ser distinta de la actual» / 400 «La contraseña debe tener al menos 8 caracteres»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PWD-04",
+      "area": "Contraseña",
+      "titulo": "Cambio correcto",
+      "refs": "HU-USU-01",
+      "pasos": "Cambiar la contraseña e iniciar sesión con la anterior y con la nueva",
+      "esperado": "204; la anterior da 401 y la nueva 200",
+      "obtenido": "cambio 204, anterior 401, nueva 200",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-MEN-01",
+      "area": "Menú",
+      "titulo": "El menú muestra solo productos disponibles con su precio",
+      "refs": "HU-CLI-01, RN-NEG-02",
+      "pasos": "GET /api/productos/menu y comparar con la base",
+      "esperado": "Los mismos productos disponibles; «Pastel de chocolate» (no disponible) no aparece",
+      "obtenido": "11 productos, todos con precio; Pastel de chocolate no aparece",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-01",
+      "area": "Productos",
+      "titulo": "Registrar un producto",
+      "refs": "HU-PER-01, RU-06",
+      "pasos": "Trabajador crea «Limonada de prueba» a 1.50",
+      "esperado": "201, disponible y visible en el menú",
+      "obtenido": "201, disponible=true, en menú=true",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-02",
+      "area": "Productos",
+      "titulo": "Nombre de producto repetido",
+      "refs": "HU-PER-01",
+      "pasos": "Crear otra vez «Limonada de prueba»",
+      "esperado": "409",
+      "obtenido": "409 «Ya existe un producto con ese nombre»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-03",
+      "area": "Productos",
+      "titulo": "Precios no válidos",
+      "refs": "HU-PER-01",
+      "pasos": "Crear productos con precio 0, -1, 1.234 y 1000",
+      "esperado": "400 en los cuatro y ningún producto creado",
+      "obtenido": "400 «El precio debe ser mayor a 0» / 400 «El precio debe ser mayor a 0» / 400 «El precio admite como máximo 2 decimales» / 400 «El precio no puede superar 999.99»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-04",
+      "area": "Productos",
+      "titulo": "Producto con imagen válida",
+      "refs": "HU-PER-01",
+      "pasos": "Crear un producto adjuntando un PNG y solicitar la imagen",
+      "esperado": "201 y la imagen responde 200",
+      "obtenido": "creación 201, imagen 200",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-05",
+      "area": "Productos",
+      "titulo": "Imagen falsa o demasiado grande",
+      "refs": "HU-PER-01",
+      "pasos": "Adjuntar un texto con extensión .png y un PNG de 2,2 MB",
+      "esperado": "400 para el falso y 413 para el grande",
+      "obtenido": "400 «Formato de imagen no permitido (solo JPG, PNG o WEBP)» / 413 «La imagen supera el tamaño máximo permitido»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-06",
+      "area": "Productos",
+      "titulo": "Actualizar nombre y precio",
+      "refs": "HU-PER-02",
+      "pasos": "PATCH al producto «Limonada de prueba»",
+      "esperado": "200 y el menú muestra los nuevos datos",
+      "obtenido": "200; menú: Limonada natural a 1.8",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-07",
+      "area": "Productos",
+      "titulo": "Cambiar la disponibilidad",
+      "refs": "HU-PER-03, RN-NEG-02",
+      "pasos": "Marcar un producto como no disponible y después disponible",
+      "esperado": "Sale del menú y vuelve a aparecer",
+      "obtenido": "desactivar 200 (oculto=true), activar 200 (visible=true)",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-08",
+      "area": "Productos",
+      "titulo": "Armar el menú en lote",
+      "refs": "HU-PER-03",
+      "pasos": "PUT /api/productos/menu con tres códigos; después con lista vacía y con un código inexistente",
+      "esperado": "Quedan disponibles solo los tres; las listas inválidas dan 400 sin cambios",
+      "obtenido": "200, disponibles 1,2,3; vacía 400; inexistente 400; sin cambios=true",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PRO-09",
+      "area": "Productos",
+      "titulo": "Un cliente no puede modificar el menú",
+      "refs": "HU-PER-02",
+      "pasos": "Cliente intenta cambiar un precio y armar el menú",
+      "esperado": "403 en ambos",
+      "obtenido": "403, 403",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-01",
+      "area": "Pedidos",
+      "titulo": "Confirmar un pedido válido",
+      "refs": "HU-CLI-02, HU-CLI-05, RN-NEG-03/05/06",
+      "pasos": "Pedir 2 cafés americanos y 1 sánduche de pollo",
+      "esperado": "201, estado pendiente, código de 6 caracteres y total = suma de precio × cantidad",
+      "obtenido": "201, pendiente, código con formato válido=true, total 5.25 (esperado 5.25)",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-02",
+      "area": "Pedidos",
+      "titulo": "Pedido sin productos",
+      "refs": "HU-CLI-04, RN-NEG-01",
+      "pasos": "Enviar la lista de productos vacía",
+      "esperado": "400 y ningún pedido creado",
+      "obtenido": "400 «El pedido debe incluir al menos un producto (RN-NEG-01)»; pedidos creados: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-03",
+      "area": "Pedidos",
+      "titulo": "Cantidad cero",
+      "refs": "HU-CLI-04, RN-NEG-01",
+      "pasos": "Pedir 0 unidades",
+      "esperado": "400 y ningún pedido creado",
+      "obtenido": "400 «La cantidad de cada producto debe ser un número entero positivo (RN-NEG-01)»; pedidos creados: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-04",
+      "area": "Pedidos",
+      "titulo": "Cantidad negativa",
+      "refs": "HU-CLI-04, RN-NEG-01",
+      "pasos": "Pedir -1 unidades",
+      "esperado": "400 y ningún pedido creado",
+      "obtenido": "400 «La cantidad de cada producto debe ser un número entero positivo (RN-NEG-01)»; pedidos creados: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-05",
+      "area": "Pedidos",
+      "titulo": "Cantidad decimal",
+      "refs": "HU-CLI-04, RN-NEG-01",
+      "pasos": "Enviar a la API una cantidad de 1.5",
+      "esperado": "400 y ningún pedido creado",
+      "obtenido": "400 «El cuerpo de la petición no es un JSON válido»; pedidos creados: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-06",
+      "area": "Pedidos",
+      "titulo": "Producto no disponible",
+      "refs": "HU-CLI-04, RN-NEG-02",
+      "pasos": "Pedir «Pastel de chocolate»",
+      "esperado": "400 y ningún pedido creado",
+      "obtenido": "400 «El producto 'Pastel de chocolate' no está disponible (RN-NEG-02)»; pedidos creados: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-07",
+      "area": "Pedidos",
+      "titulo": "Producto inexistente",
+      "refs": "HU-CLI-04",
+      "pasos": "Pedir el código 999999",
+      "esperado": "400 y ningún pedido creado",
+      "obtenido": "400 «El producto 999999 no existe»; pedidos creados: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-08",
+      "area": "Pedidos",
+      "titulo": "Más de 30 productos distintos",
+      "refs": "HU-CLI-04",
+      "pasos": "Enviar 31 líneas",
+      "esperado": "400 y ningún pedido creado",
+      "obtenido": "400 «El pedido no puede tener más de 30 productos distintos»; pedidos creados: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-09",
+      "area": "Pedidos",
+      "titulo": "El servidor ignora precios enviados por el cliente",
+      "refs": "HU-CLI-03, RN-NEG-03",
+      "pasos": "Enviar precioUnitario e importeTotal falsos (0.01) junto al pedido",
+      "esperado": "El total se calcula con el precio del menú",
+      "obtenido": "201, total 2.5 (precio del menú 1.25 × 2)",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-10",
+      "area": "Pedidos",
+      "titulo": "Producto repetido en la selección",
+      "refs": "HU-CLI-02",
+      "pasos": "Enviar el mismo producto en dos líneas (1 y 2 unidades)",
+      "esperado": "Una sola línea con 3 unidades",
+      "obtenido": "201, 1 línea(s), cantidad 3",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-11",
+      "area": "Pedidos",
+      "titulo": "Códigos de retiro únicos",
+      "refs": "HU-CLI-05, RN-NEG-05",
+      "pasos": "Crear 30 pedidos seguidos y revisar los códigos de toda la base",
+      "esperado": "Ningún código repetido y todos con el formato definido",
+      "obtenido": "41 pedidos, 41 códigos distintos, 0 con formato inválido",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-12",
+      "area": "Pedidos",
+      "titulo": "El precio de un pedido no cambia al cambiar el menú",
+      "refs": "RN-NEG-04",
+      "pasos": "Crear un pedido, subir el precio del producto, consultar el pedido y crear otro",
+      "esperado": "El primero conserva precio y total; el nuevo usa el precio actualizado",
+      "obtenido": "anterior: 2.5 → 2.5; nuevo: 19",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PED-13",
+      "area": "Pedidos",
+      "titulo": "Consultar mis pedidos y su estado",
+      "refs": "HU-CLI-06, RU-05",
+      "pasos": "Un cliente consulta sus pedidos; otro cliente intenta abrir uno ajeno",
+      "esperado": "El dueño ve estado y código; el otro recibe 404",
+      "obtenido": "37 pedidos propios con estado y código; pedido ajeno 404 «Pedido no encontrado»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-01",
+      "area": "Atención",
+      "titulo": "Consultar pedidos pendientes sin ver los códigos",
+      "refs": "HU-PER-04, RN-NEG-07",
+      "pasos": "Trabajador consulta GET /api/pedidos?estado=pendiente",
+      "esperado": "Solo pedidos pendientes y sin código de retiro en la respuesta",
+      "obtenido": "40 pedidos, todos pendientes=true, con código: 0",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-02",
+      "area": "Atención",
+      "titulo": "No se pueden saltar estados",
+      "refs": "RN-NEG-06, RN-NEG-07",
+      "pasos": "Marcar listo y entregar un pedido pendiente (con su código correcto)",
+      "esperado": "409 en ambos y sigue pendiente",
+      "obtenido": "409 «El pedido está 'pendiente' y no puede pasar a 'listo'. Los pedidos solo avanzan en orden: pendiente → en_preparacion → listo → entregado» / 409 «Solo se puede entregar un pedido que está 'listo'. Estado actual: 'pendiente'»; estado pendiente",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-03",
+      "area": "Atención",
+      "titulo": "Iniciar la preparación",
+      "refs": "HU-PER-05",
+      "pasos": "Iniciar preparación del pedido pendiente",
+      "esperado": "200 y estado en_preparacion",
+      "obtenido": "200, estado en_preparacion",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-04",
+      "area": "Atención",
+      "titulo": "No se puede repetir ni retroceder un estado",
+      "refs": "RN-NEG-06",
+      "pasos": "Iniciar otra vez la preparación del mismo pedido",
+      "esperado": "409",
+      "obtenido": "409 «El pedido está 'en_preparacion' y no puede pasar a 'en_preparacion'. Los pedidos solo avanzan en orden: pendiente → en_preparacion → listo → entregado»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-05",
+      "area": "Atención",
+      "titulo": "Marcar el pedido como listo",
+      "refs": "HU-PER-06",
+      "pasos": "Marcar listo",
+      "esperado": "200 y estado listo",
+      "obtenido": "200, estado listo",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-06",
+      "area": "Entrega",
+      "titulo": "Comprobar un código incorrecto",
+      "refs": "HU-PER-07, RN-NEG-07",
+      "pasos": "Verificar el código AAAAAA",
+      "esperado": "Respuesta válido=false y el estado no cambia",
+      "obtenido": "200, válido=false, estado listo",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-07",
+      "area": "Entrega",
+      "titulo": "Entregar con código incorrecto, vacío o de otro pedido",
+      "refs": "HU-PER-07, RN-NEG-07",
+      "pasos": "Intentar entregar con AAAAAA, sin código y con el código de otro pedido",
+      "esperado": "400 en los tres y sigue listo",
+      "obtenido": "400 «El código de retiro no coincide» / 400 «El código de retiro no coincide» / 400 «El código de retiro no coincide»; estado listo",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-08",
+      "area": "Entrega",
+      "titulo": "Entregar con el código correcto",
+      "refs": "HU-PER-07, RN-NEG-07",
+      "pasos": "Verificar y entregar escribiendo el código en minúsculas",
+      "esperado": "válido=true, 200 y estado entregado",
+      "obtenido": "válido=true, entrega 200, estado entregado",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-09",
+      "area": "Entrega",
+      "titulo": "No se puede entregar dos veces",
+      "refs": "RN-NEG-06/07",
+      "pasos": "Entregar de nuevo el pedido entregado",
+      "esperado": "409",
+      "obtenido": "409 «Solo se puede entregar un pedido que está 'listo'. Estado actual: 'entregado'»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-PER-10",
+      "area": "Atención",
+      "titulo": "Dos trabajadores cambian el mismo pedido a la vez",
+      "refs": "RNF-04",
+      "pasos": "20 repeticiones: dos sesiones inician la preparación del mismo pedido simultáneamente",
+      "esperado": "En cada repetición: una respuesta 200, una 409 y un solo registro en el historial",
+      "obtenido": "200+409: 20 veces",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-ADM-01",
+      "area": "Administración",
+      "titulo": "Crear una cuenta de trabajador",
+      "refs": "HU-ADM-01",
+      "pasos": "Administrador registra un trabajador y este inicia sesión",
+      "esperado": "201 y sesión de tipo trabajador",
+      "obtenido": "alta 201, sesión 200 trabajador",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-ADM-02",
+      "area": "Administración",
+      "titulo": "Datos de trabajador inválidos o repetidos",
+      "refs": "HU-ADM-01",
+      "pasos": "Registrar con cédula inválida y con el correo ya usado",
+      "esperado": "400 y 409",
+      "obtenido": "400 «La cédula no es válida (dígito verificador incorrecto)» / 409 «Ya existe una cuenta con este correo»",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-ADM-03",
+      "area": "Administración",
+      "titulo": "Lista de trabajadores sin contraseñas",
+      "refs": "HU-ADM-02",
+      "pasos": "GET /api/trabajadores",
+      "esperado": "Incluye al nuevo trabajador y ningún campo de contraseña",
+      "obtenido": "4 trabajadores; campos: idTrabajador, nombre, apellido, cedula, correo",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-ADM-04",
+      "area": "Administración",
+      "titulo": "Historial de cambios de estado",
+      "refs": "HU-ADM-03",
+      "pasos": "GET /api/historial-pedidos?idPedido del pedido entregado",
+      "esperado": "Cuatro cambios en orden, con el responsable en los tres hechos por personal",
+      "obtenido": "pendiente → en_preparacion → listo → entregado; con responsable: 3",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-BD-01",
+      "area": "Base de datos",
+      "titulo": "La base rechaza saltar estados",
+      "refs": "RN-NEG-06, RNF-03",
+      "pasos": "Insertar directamente el estado «entregado» en un pedido pendiente",
+      "esperado": "La base devuelve error",
+      "obtenido": "Transición no permitida: pendiente -> entregado (RN-NEG-06 / RN-NEG-07)",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-BD-02",
+      "area": "Base de datos",
+      "titulo": "La base protege el precio registrado",
+      "refs": "RN-NEG-04, RNF-03",
+      "pasos": "Actualizar directamente detalle_pedido.precio_unitario",
+      "esperado": "La base devuelve error",
+      "obtenido": "El precio, el producto y el pedido de un detalle no se pueden modificar (RN-NEG-04)",
+      "resultado": "Aprobado"
+    },
+    {
+      "id": "CF-BD-03",
+      "area": "Base de datos",
+      "titulo": "La base rechaza productos no disponibles",
+      "refs": "RN-NEG-02, RNF-03",
+      "pasos": "Llamar a crear_pedido() con un producto no disponible",
+      "esperado": "La base devuelve error",
+      "obtenido": "El producto 12 no está disponible (RN-NEG-02)",
+      "resultado": "Aprobado"
+    }
+  ]
+}

@@ -1,0 +1,677 @@
+[
+  {
+    "id": "CP-01",
+    "modulo": "Registro",
+    "titulo": "Registrar un cliente con datos válidos",
+    "requisito": "HU-CLI-07",
+    "precondicion": "No existe una cuenta con el correo ni la cédula usados.",
+    "pasos": [
+      "Abrir el portal de clientes y pulsar «Crear cuenta».",
+      "Completar todos los campos con datos válidos.",
+      "Pulsar «Crear cuenta»."
+    ],
+    "esperado": "Se crea la cuenta, se inicia sesión y se muestra el menú.",
+    "resultado": "Aprobado",
+    "obtenido": "Se abrió el menú con el aviso «¡Cuenta creada! Ya puedes hacer tu primer pedido.».",
+    "capturas": [
+      "CP-01.jpg"
+    ]
+  },
+  {
+    "id": "CP-02",
+    "modulo": "Registro",
+    "titulo": "Registrar con datos no válidos",
+    "requisito": "HU-CLI-07",
+    "precondicion": "Ninguna.",
+    "pasos": [
+      "Abrir «Crear cuenta».",
+      "Escribir una cédula con dígito verificador incorrecto, un celular que empiece con 08 y una contraseña sin números.",
+      "Pulsar «Crear cuenta»."
+    ],
+    "esperado": "No se crea la cuenta y se indica el error de cada campo.",
+    "resultado": "Aprobado",
+    "obtenido": "No se creó la cuenta. Mensajes: La cédula no es válida. | El celular debe tener 10 dígitos y empezar con 09. | La contraseña debe tener al menos 8 caracteres, una letra y un número.",
+    "capturas": [
+      "CP-02.jpg"
+    ]
+  },
+  {
+    "id": "CP-03",
+    "modulo": "Registro",
+    "titulo": "Registrar un correo ya usado",
+    "requisito": "HU-CLI-07",
+    "precondicion": "Existe la cuenta creada en CP-01.",
+    "pasos": [
+      "Abrir «Crear cuenta».",
+      "Usar el mismo correo de CP-01 con otra cédula.",
+      "Pulsar «Crear cuenta»."
+    ],
+    "esperado": "No se crea la cuenta y se informa que el correo ya existe.",
+    "resultado": "Aprobado",
+    "obtenido": "Mensaje: Ya existe una cuenta con este correo | Ya existe una cuenta con este correo",
+    "capturas": [
+      "CP-03.jpg"
+    ]
+  },
+  {
+    "id": "CP-04",
+    "modulo": "Acceso",
+    "titulo": "Iniciar sesión como cliente",
+    "requisito": "HU-USU-02",
+    "precondicion": "Cuenta de cliente de prueba.",
+    "pasos": [
+      "Abrir el portal de clientes.",
+      "Escribir correo y contraseña correctos.",
+      "Pulsar «Ingresar»."
+    ],
+    "esperado": "Se muestra el menú con el nombre del cliente.",
+    "resultado": "Aprobado",
+    "obtenido": "Menú abierto con el saludo «Hola, Ana».",
+    "capturas": [
+      "CP-04.jpg"
+    ]
+  },
+  {
+    "id": "CP-05",
+    "modulo": "Acceso",
+    "titulo": "Iniciar sesión con contraseña incorrecta",
+    "requisito": "HU-USU-02",
+    "precondicion": "Cuenta de cliente de prueba.",
+    "pasos": [
+      "Abrir el portal de clientes.",
+      "Escribir el correo correcto y una contraseña incorrecta.",
+      "Pulsar «Ingresar»."
+    ],
+    "esperado": "No se inicia sesión y el mensaje no revela si el correo existe.",
+    "resultado": "Aprobado",
+    "obtenido": "Mensaje: «Correo o contraseña incorrectos.»",
+    "capturas": [
+      "CP-05.jpg"
+    ]
+  },
+  {
+    "id": "CP-06",
+    "modulo": "Acceso",
+    "titulo": "Una cuenta del personal no entra al portal de clientes",
+    "requisito": "HU-USU-02",
+    "precondicion": "Cuenta de trabajador de prueba.",
+    "pasos": [
+      "Abrir el portal de clientes.",
+      "Iniciar sesión con una cuenta de trabajador."
+    ],
+    "esperado": "Se rechaza el acceso y se indica usar el portal del personal.",
+    "resultado": "Aprobado",
+    "obtenido": "Mensaje: «Esta cuenta pertenece al personal de la cafetería. Usa el portal del personal.»",
+    "capturas": [
+      "CP-06.jpg"
+    ]
+  },
+  {
+    "id": "CP-07",
+    "modulo": "Acceso",
+    "titulo": "Una cuenta de cliente no entra al portal del personal",
+    "requisito": "HU-USU-02",
+    "precondicion": "Cuenta de cliente de prueba.",
+    "pasos": [
+      "Abrir el portal del personal.",
+      "Iniciar sesión con una cuenta de cliente."
+    ],
+    "esperado": "Se rechaza el acceso y se indica usar el portal de clientes.",
+    "resultado": "Aprobado",
+    "obtenido": "Mensaje: «Esta cuenta corresponde a un cliente. Usa el portal de clientes.»",
+    "capturas": [
+      "CP-07.jpg"
+    ]
+  },
+  {
+    "id": "CP-08",
+    "modulo": "Acceso",
+    "titulo": "Abrir una página protegida sin sesión",
+    "requisito": "HU-USU-02, RNF-02",
+    "precondicion": "No hay sesión iniciada.",
+    "pasos": [
+      "Escribir en el navegador la dirección del panel del trabajador (/admin/panel-trabajador.html)."
+    ],
+    "esperado": "El sistema redirige a la pantalla de acceso.",
+    "resultado": "Aprobado",
+    "obtenido": "Redirigió a /admin/index.html.",
+    "capturas": [
+      "CP-08.jpg"
+    ]
+  },
+  {
+    "id": "CP-09",
+    "modulo": "Menú",
+    "titulo": "Consultar el menú y los precios",
+    "requisito": "HU-CLI-01, RN-NEG-02",
+    "precondicion": "«Pastel de chocolate» está marcado como no disponible.",
+    "pasos": [
+      "Iniciar sesión como cliente.",
+      "Revisar los productos y precios del menú."
+    ],
+    "esperado": "Se muestran solo los productos disponibles, cada uno con su precio.",
+    "resultado": "Aprobado",
+    "obtenido": "11 productos mostrados (11 disponibles en la base); «Pastel de chocolate» no aparece.",
+    "capturas": [
+      "CP-09.jpg"
+    ]
+  },
+  {
+    "id": "CP-10",
+    "modulo": "Menú",
+    "titulo": "Buscar y filtrar productos",
+    "requisito": "HU-CLI-01",
+    "precondicion": "Sesión de cliente.",
+    "pasos": [
+      "Escribir «café» en «Buscar producto»."
+    ],
+    "esperado": "Solo se muestran los productos cuyo nombre contiene «café».",
+    "resultado": "Aprobado",
+    "obtenido": "Se mostraron: Café americano, Café con leche.",
+    "capturas": [
+      "CP-10.jpg"
+    ]
+  },
+  {
+    "id": "CP-11",
+    "modulo": "Pedido",
+    "titulo": "No se puede confirmar un pedido vacío",
+    "requisito": "HU-CLI-04, RN-NEG-01",
+    "precondicion": "Sesión de cliente con el carrito vacío.",
+    "pasos": [
+      "Abrir el menú sin agregar productos.",
+      "Intentar pulsar «Revisar pedido»."
+    ],
+    "esperado": "El botón está deshabilitado.",
+    "resultado": "Aprobado",
+    "obtenido": "«Revisar pedido» aparece deshabilitado.",
+    "capturas": [
+      "CP-11.jpg"
+    ]
+  },
+  {
+    "id": "CP-12",
+    "modulo": "Pedido",
+    "titulo": "Armar un pedido y revisar el total",
+    "requisito": "HU-CLI-02, HU-CLI-03, RN-NEG-03",
+    "precondicion": "Sesión de cliente.",
+    "pasos": [
+      "Agregar dos veces «Café americano».",
+      "Agregar una vez «Sánduche de pollo».",
+      "Revisar el total en «Tu pedido»."
+    ],
+    "esperado": "El total es 2 × precio del café + precio del sánduche.",
+    "resultado": "Aprobado",
+    "obtenido": "Total mostrado $5.25; esperado $5.25.",
+    "capturas": [
+      "CP-12.jpg"
+    ]
+  },
+  {
+    "id": "CP-13",
+    "modulo": "Pedido",
+    "titulo": "Quitar un producto reduciendo la cantidad a cero",
+    "requisito": "HU-CLI-02, RN-NEG-01",
+    "precondicion": "Un producto en el carrito.",
+    "pasos": [
+      "Agregar «Agua mineral».",
+      "Escribir 0 en el campo de cantidad."
+    ],
+    "esperado": "El carrito no admite la cantidad cero: el producto se quita.",
+    "resultado": "Aprobado",
+    "obtenido": "Líneas en el carrito: 0; total $0.00.",
+    "capturas": [
+      "CP-13.jpg"
+    ]
+  },
+  {
+    "id": "CP-14",
+    "modulo": "Pedido",
+    "titulo": "Confirmar el pedido y obtener el código",
+    "requisito": "HU-CLI-05, RN-NEG-05, RN-NEG-06",
+    "precondicion": "Sesión de cliente.",
+    "pasos": [
+      "Agregar «Café americano» y «Sánduche de pollo».",
+      "Pulsar «Revisar pedido».",
+      "Pulsar «Confirmar pedido»."
+    ],
+    "esperado": "Se muestra un código de retiro de 6 caracteres, el estado Pendiente y el total.",
+    "resultado": "Aprobado",
+    "obtenido": "Código UHAE6Q, estado Pendiente, total $4.00.",
+    "capturas": [
+      "CP-14.jpg"
+    ]
+  },
+  {
+    "id": "CP-15",
+    "modulo": "Pedido",
+    "titulo": "Un producto deja de estar disponible antes de confirmar",
+    "requisito": "HU-CLI-04, RN-NEG-02",
+    "precondicion": "El cliente tiene el producto en el carrito y el personal lo desactiva.",
+    "pasos": [
+      "Agregar «Humita» y pulsar «Revisar pedido».",
+      "Mientras tanto, el trabajador marca «Humita» como no disponible.",
+      "Pulsar «Confirmar pedido»."
+    ],
+    "esperado": "El pedido no se confirma y se informa el motivo.",
+    "resultado": "Aprobado",
+    "obtenido": "No se creó el pedido. Mensaje: El producto 'Humita' no está disponible (RN-NEG-02) Humita agregado al carrito. | \"Humita\" ya no está disponible y se quitó de tu carrito.",
+    "capturas": [
+      "CP-15.jpg"
+    ]
+  },
+  {
+    "id": "CP-16",
+    "modulo": "Seguimiento",
+    "titulo": "Consultar el estado de mis pedidos",
+    "requisito": "HU-CLI-06, RU-05",
+    "precondicion": "El cliente tiene un pedido recién creado.",
+    "pasos": [
+      "Iniciar sesión como cliente.",
+      "Abrir «Mis pedidos»."
+    ],
+    "esperado": "Se muestra cada pedido en curso con su estado, código de retiro y total.",
+    "resultado": "Aprobado",
+    "obtenido": "El pedido #10 aparece como Pendiente con su código.",
+    "capturas": [
+      "CP-16.jpg"
+    ]
+  },
+  {
+    "id": "CP-17",
+    "modulo": "Atención",
+    "titulo": "Consultar los pedidos pendientes",
+    "requisito": "HU-PER-04, RN-NEG-07",
+    "precondicion": "Sesión de trabajador y pedidos pendientes.",
+    "pasos": [
+      "Iniciar sesión como trabajador.",
+      "En «Panel de Pedidos» revisar el filtro «Pendientes»."
+    ],
+    "esperado": "Se listan los pedidos pendientes y no se muestran sus códigos de retiro.",
+    "resultado": "Aprobado",
+    "obtenido": "5 pedidos pendientes listados; ningún código visible.",
+    "capturas": [
+      "CP-17.jpg"
+    ]
+  },
+  {
+    "id": "CP-18",
+    "modulo": "Atención",
+    "titulo": "Iniciar la preparación",
+    "requisito": "HU-PER-05, RN-NEG-06",
+    "precondicion": "Pedido de CP-16 en estado Pendiente.",
+    "pasos": [
+      "En «Pendientes», pulsar «Iniciar preparación» en el pedido."
+    ],
+    "esperado": "El pedido pasa a En preparación.",
+    "resultado": "Aprobado",
+    "obtenido": "Estado en la base: en_preparacion. Aviso: «Pedido #10 pasó a En preparación.»",
+    "capturas": [
+      "CP-18.jpg"
+    ]
+  },
+  {
+    "id": "CP-19",
+    "modulo": "Atención",
+    "titulo": "Marcar el pedido como listo",
+    "requisito": "HU-PER-06, RN-NEG-06",
+    "precondicion": "Pedido en estado En preparación.",
+    "pasos": [
+      "Abrir el filtro «En preparación».",
+      "Pulsar «Marcar listo»."
+    ],
+    "esperado": "El pedido pasa a Listo para retirar.",
+    "resultado": "Aprobado",
+    "obtenido": "Estado en la base: listo. Aviso: «Pedido #10 marcado como Listo para retirar.»",
+    "capturas": [
+      "CP-19.jpg"
+    ]
+  },
+  {
+    "id": "CP-20",
+    "modulo": "Seguimiento",
+    "titulo": "El cliente ve que su pedido está listo",
+    "requisito": "HU-CLI-06",
+    "precondicion": "Pedido en estado Listo para retirar.",
+    "pasos": [
+      "Iniciar sesión como el cliente del pedido.",
+      "Abrir «Mis pedidos»."
+    ],
+    "esperado": "El pedido se muestra como Listo para retirar con la indicación de acercarse al mostrador.",
+    "resultado": "Aprobado",
+    "obtenido": "El pedido #10 indica que está listo para retirar.",
+    "capturas": [
+      "CP-20.jpg"
+    ]
+  },
+  {
+    "id": "CP-21",
+    "modulo": "Entrega",
+    "titulo": "Entregar con un código incorrecto",
+    "requisito": "HU-PER-07, RN-NEG-07",
+    "precondicion": "Pedido en estado Listo para retirar.",
+    "pasos": [
+      "Abrir «Validar Código de Retiro» y elegir el pedido.",
+      "Escribir el código AAAAAA.",
+      "Pulsar «Confirmar entrega»."
+    ],
+    "esperado": "No se registra la entrega y se informa que el código no coincide.",
+    "resultado": "Aprobado",
+    "obtenido": "Estado: listo. Mensaje: «El código de retiro no coincide Pedido: #10 | Cliente: Bruno Vera Estado actual: Listo par»",
+    "capturas": [
+      "CP-21.jpg"
+    ]
+  },
+  {
+    "id": "CP-22",
+    "modulo": "Entrega",
+    "titulo": "Comprobar el código correcto",
+    "requisito": "HU-PER-07, RN-NEG-07",
+    "precondicion": "Pedido en estado Listo para retirar.",
+    "pasos": [
+      "Elegir el pedido y escribir el código que presenta el cliente.",
+      "Pulsar «Comprobar código»."
+    ],
+    "esperado": "Se indica que el código es válido y el estado no cambia.",
+    "resultado": "Aprobado",
+    "obtenido": "Estado: listo. Mensaje: «Código válido. Puedes pulsar Confirmar entrega. Pedido: #10 »",
+    "capturas": [
+      "CP-22.jpg"
+    ]
+  },
+  {
+    "id": "CP-23",
+    "modulo": "Entrega",
+    "titulo": "Registrar la entrega con el código correcto",
+    "requisito": "HU-PER-07, RN-NEG-06, RN-NEG-07",
+    "precondicion": "Pedido en estado Listo para retirar.",
+    "pasos": [
+      "Elegir el pedido y escribir el código correcto.",
+      "Pulsar «Confirmar entrega»."
+    ],
+    "esperado": "El pedido pasa a Entregado.",
+    "resultado": "Aprobado",
+    "obtenido": "Estado: entregado. Mensaje: «Pedido #10 marcado como Entregado.»",
+    "capturas": [
+      "CP-23.jpg"
+    ]
+  },
+  {
+    "id": "CP-24",
+    "modulo": "Productos",
+    "titulo": "Registrar un producto nuevo",
+    "requisito": "HU-PER-01, RU-06",
+    "precondicion": "No existe un producto llamado «Limonada de prueba».",
+    "pasos": [
+      "Abrir «Gestión del Menú».",
+      "Escribir nombre «Limonada de prueba», precio 1.50 y tipo Bebida.",
+      "Pulsar «Guardar producto»."
+    ],
+    "esperado": "El producto se registra como disponible y aparece en el catálogo.",
+    "resultado": "Aprobado",
+    "obtenido": "Producto registrado y disponible. Aviso: «Producto registrado correctamente en el menú.»",
+    "capturas": [
+      "CP-24.jpg"
+    ]
+  },
+  {
+    "id": "CP-25",
+    "modulo": "Productos",
+    "titulo": "Registrar un producto con precio no válido",
+    "requisito": "HU-PER-01",
+    "precondicion": "Sesión de trabajador.",
+    "pasos": [
+      "En «Gestión del Menú», escribir un nombre y el precio 0.",
+      "Pulsar «Guardar producto»."
+    ],
+    "esperado": "No se registra el producto y se informa el motivo.",
+    "resultado": "Aprobado",
+    "obtenido": "No se registró. Mensaje: «El precio debe ser mayor a 0 y hasta 999.99.»",
+    "capturas": [
+      "CP-25.jpg"
+    ]
+  },
+  {
+    "id": "CP-26",
+    "modulo": "Productos",
+    "titulo": "Cambiar el precio sin alterar pedidos anteriores",
+    "requisito": "HU-PER-02, RN-NEG-04",
+    "precondicion": "Existe el pedido entregado de CP-23.",
+    "pasos": [
+      "Editar «Café con leche», escribir el precio 3.00 y guardar.",
+      "Iniciar sesión como administrador y abrir el detalle del pedido anterior en el historial."
+    ],
+    "esperado": "El catálogo muestra $3.00 y el pedido anterior conserva el precio con el que se confirmó.",
+    "resultado": "Aprobado",
+    "obtenido": "Catálogo: $3.00. El pedido #10 conserva $1.50.",
+    "capturas": [
+      "CP-26-catalogo.jpg",
+      "CP-26-pedido-anterior.jpg"
+    ]
+  },
+  {
+    "id": "CP-27",
+    "modulo": "Productos",
+    "titulo": "Desactivar un producto",
+    "requisito": "HU-PER-03, RN-NEG-02",
+    "precondicion": "«Té helado» está disponible.",
+    "pasos": [
+      "En «Gestión del Menú», apagar el interruptor de «Té helado».",
+      "Iniciar sesión como cliente y buscar el producto."
+    ],
+    "esperado": "El producto queda como No disponible y no aparece al cliente.",
+    "resultado": "Aprobado",
+    "obtenido": "Disponible en la base: no; visible para el cliente: no.",
+    "capturas": [
+      "CP-27-panel.jpg",
+      "CP-27-cliente.jpg"
+    ]
+  },
+  {
+    "id": "CP-28",
+    "modulo": "Productos",
+    "titulo": "Guardar el menú en lote con un filtro activo",
+    "requisito": "HU-PER-03, RN-NEG-02",
+    "precondicion": "Hay bebidas y alimentos disponibles.",
+    "pasos": [
+      "En «Gestión del Menú», elegir el filtro «Bebidas» sin cambiar ninguna casilla.",
+      "Pulsar «Guardar menú seleccionado».",
+      "Cambiar el filtro a «Alimentos» y revisar su disponibilidad."
+    ],
+    "esperado": "Los alimentos, ocultos al guardar, conservan su disponibilidad.",
+    "resultado": "Fallido",
+    "obtenido": "Alimentos disponibles antes de guardar: 5; después: 0.",
+    "capturas": [
+      "CP-28-antes-1-filtro.jpg",
+      "CP-28-antes-2-alimentos.jpg"
+    ],
+    "reejecucion": {
+      "resultado": "Aprobado",
+      "obtenido": "Alimentos disponibles antes de guardar: 5; después: 5.",
+      "capturas": [
+        "CP-28-despues-1-filtro.jpg",
+        "CP-28-despues-2-alimentos.jpg"
+      ]
+    }
+  },
+  {
+    "id": "CP-29",
+    "modulo": "Administración",
+    "titulo": "Crear una cuenta de trabajador",
+    "requisito": "HU-ADM-01, HU-ADM-02",
+    "precondicion": "Sesión de administrador; el correo y la cédula no existen.",
+    "pasos": [
+      "Iniciar sesión como administrador.",
+      "Completar el formulario «Crear cuenta de trabajador» y pulsar «Registrar trabajador».",
+      "Revisar la lista de trabajadores."
+    ],
+    "esperado": "La cuenta se crea y aparece en la lista, sin mostrar contraseñas.",
+    "resultado": "Aprobado",
+    "obtenido": "La cuenta aparece en la lista. Aviso: «Cuenta de trabajador registrada correctamente.»",
+    "capturas": [
+      "CP-29.jpg"
+    ]
+  },
+  {
+    "id": "CP-30",
+    "modulo": "Administración",
+    "titulo": "Crear un trabajador con cédula no válida",
+    "requisito": "HU-ADM-01",
+    "precondicion": "Sesión de administrador.",
+    "pasos": [
+      "Completar el formulario con la cédula 1234567890.",
+      "Pulsar «Registrar trabajador»."
+    ],
+    "esperado": "No se crea la cuenta y se informa el error.",
+    "resultado": "Aprobado",
+    "obtenido": "No se creó. Mensaje: «La cédula ecuatoriana ingresada no es válida (revisa los 10 dígitos).»",
+    "capturas": [
+      "CP-30.jpg"
+    ]
+  },
+  {
+    "id": "CP-31",
+    "modulo": "Administración",
+    "titulo": "Consultar el historial de un pedido",
+    "requisito": "HU-ADM-03, RN-NEG-06",
+    "precondicion": "Existe el pedido entregado de CP-23.",
+    "pasos": [
+      "Abrir «Historial de Pedidos».",
+      "Escribir el número del pedido y pulsar «Buscar»."
+    ],
+    "esperado": "Se muestran los cuatro estados en orden, con fecha y responsable.",
+    "resultado": "Aprobado",
+    "obtenido": "Aparecen Pendiente, En preparación, Listo para retirar y Entregado, con María López como responsable.",
+    "capturas": [
+      "CP-31.jpg"
+    ]
+  },
+  {
+    "id": "CP-32",
+    "modulo": "Cuenta",
+    "titulo": "Cambiar contraseña indicando mal la actual",
+    "requisito": "HU-USU-01",
+    "precondicion": "Sesión de cliente.",
+    "pasos": [
+      "Pulsar «Cambiar contraseña».",
+      "Escribir una contraseña actual incorrecta y una nueva válida.",
+      "Pulsar «Guardar»."
+    ],
+    "esperado": "No se cambia la contraseña y se informa el error.",
+    "resultado": "Aprobado",
+    "obtenido": "Mensaje: «La contraseña actual es incorrecta»",
+    "capturas": [
+      "CP-32.jpg"
+    ]
+  },
+  {
+    "id": "CP-33",
+    "modulo": "Cuenta",
+    "titulo": "Cambiar la contraseña e iniciar sesión con la nueva",
+    "requisito": "HU-USU-01",
+    "precondicion": "Sesión de cliente.",
+    "pasos": [
+      "Cambiar la contraseña con los datos correctos.",
+      "Pulsar «Salir».",
+      "Iniciar sesión con la nueva contraseña."
+    ],
+    "esperado": "El cambio se acepta y la nueva contraseña permite ingresar.",
+    "resultado": "Aprobado",
+    "obtenido": "Se aceptó el cambio y el inicio de sesión con la nueva contraseña abrió el menú.",
+    "capturas": [
+      "CP-33-cambio.jpg",
+      "CP-33-ingreso.jpg"
+    ]
+  },
+  {
+    "id": "CP-34",
+    "modulo": "Cuenta",
+    "titulo": "Cerrar sesión",
+    "requisito": "HU-USU-02",
+    "precondicion": "Sesión de cliente.",
+    "pasos": [
+      "Pulsar «Salir».",
+      "Intentar abrir de nuevo la página del menú."
+    ],
+    "esperado": "Se vuelve a la pantalla de acceso y no se puede entrar sin iniciar sesión.",
+    "resultado": "Aprobado",
+    "obtenido": "Al abrir el menú se redirigió a /cliente/index.html.",
+    "capturas": [
+      "CP-34.jpg"
+    ]
+  },
+  {
+    "id": "CP-35",
+    "modulo": "Pedido",
+    "titulo": "La API rechaza una cantidad decimal",
+    "requisito": "RN-NEG-01, HU-CLI-04",
+    "precondicion": "Sesión de cliente. La interfaz no permite decimales, por lo que la petición se envía a la API.",
+    "pasos": [
+      "Iniciar sesión como cliente.",
+      "Desde la consola del navegador enviar POST /api/pedidos con cantidad 2.9 de «Café americano».",
+      "Abrir «Mis pedidos»."
+    ],
+    "esperado": "La petición se rechaza (400) y no se crea ningún pedido.",
+    "resultado": "Fallido",
+    "obtenido": "Respuesta 201; pedidos creados: 1; cantidad registrada: 2.",
+    "capturas": [
+      "CP-35.jpg"
+    ],
+    "reejecucion": {
+      "id": "CP-35",
+      "modulo": "Pedido",
+      "titulo": "La API rechaza una cantidad decimal",
+      "requisito": "RN-NEG-01, HU-CLI-04",
+      "precondicion": "Sesión de cliente. La interfaz no permite decimales, por lo que la petición se envía a la API.",
+      "pasos": [
+        "Iniciar sesión como cliente.",
+        "Desde la consola del navegador enviar POST /api/pedidos con cantidad 2.9 de «Café americano».",
+        "Abrir «Mis pedidos»."
+      ],
+      "esperado": "La petición se rechaza (400) y no se crea ningún pedido.",
+      "resultado": "Aprobado",
+      "obtenido": "Respuesta 400; pedidos creados: 0.",
+      "capturas": [
+        "CP-35-reejecucion.jpg"
+      ],
+      "commit": "2a7f6bd"
+    }
+  },
+  {
+    "id": "CP-36",
+    "modulo": "Registro",
+    "titulo": "Registrar un correo que no es institucional",
+    "requisito": "HU-CLI-07",
+    "precondicion": "Ninguna.",
+    "pasos": [
+      "Abrir «Crear cuenta».",
+      "Completar datos válidos, pero con un correo @gmail.com.",
+      "Pulsar «Crear cuenta»."
+    ],
+    "esperado": "No se crea la cuenta y se pide el correo institucional.",
+    "resultado": "Aprobado",
+    "obtenido": "No se creó la cuenta. Mensajes: Debe usar su correo institucional (@institucion.edu.ec) | Debe usar su correo institucional (@institucion.edu.ec)",
+    "capturas": [
+      "CP-36.jpg"
+    ]
+  },
+  {
+    "id": "CP-37",
+    "modulo": "Persistencia",
+    "titulo": "Los pedidos se conservan al reiniciar la aplicación",
+    "requisito": "RNF-01",
+    "precondicion": "Un cliente tiene un pedido registrado.",
+    "pasos": [
+      "Crear un pedido y abrir «Mis pedidos».",
+      "Detener la aplicación y volver a iniciarla.",
+      "Iniciar sesión y abrir «Mis pedidos»."
+    ],
+    "esperado": "El pedido sigue registrado con el mismo número, código y total.",
+    "resultado": "Aprobado",
+    "obtenido": "Pedido #9 con código K8QQAL antes del reinicio. Pedido #9 con código K8QQAL después del reinicio.",
+    "capturas": [
+      "CP-37-antes.jpg",
+      "CP-37-despues.jpg"
+    ]
+  }
+]
